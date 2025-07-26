@@ -7,9 +7,10 @@ interface AssignmentCardProps {
   assignment: Assignment;
   onToggleComplete: (id: number, completed: boolean) => void;
   onDelete: (id: number) => void;
+  onEdit: (assignment: Assignment) => void;
 }
 
-export default function AssignmentCard({ assignment, onToggleComplete, onDelete }: AssignmentCardProps) {
+export default function AssignmentCard({ assignment, onToggleComplete, onDelete, onEdit }: AssignmentCardProps) {
   const dueDateStatus = assignment.dueDate ? getDueDateStatus(assignment.dueDate) : null;
 
   const getTypeColor = (type: string) => {
@@ -56,12 +57,20 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete 
             {assignment.title}
           </h3>
         </div>
-        <button
-          onClick={() => onDelete(assignment.id!)}
-          className="px-3 py-1 bg-red-500 text-white text-xs font-medium rounded hover:bg-red-600 transition-colors"
-        >
-          Delete
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onEdit(assignment)}
+            className="px-3 py-1 bg-blue-500 text-white text-xs font-medium rounded hover:bg-blue-600 transition-colors"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete(assignment.id!)}
+            className="px-3 py-1 bg-red-500 text-white text-xs font-medium rounded hover:bg-red-600 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
       </div>
 
       {assignment.type && (

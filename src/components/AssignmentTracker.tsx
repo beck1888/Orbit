@@ -7,6 +7,7 @@ import ClassItem from '@/components/ClassItem';
 import AssignmentCard from '@/components/AssignmentCard';
 import AddClassForm from '@/components/AddClassForm';
 import AddAssignmentForm from '@/components/AddAssignmentForm';
+import EditAssignmentForm from '@/components/EditAssignmentForm';
 
 export default function AssignmentTracker() {
   const [db, setDb] = useState<AssignmentDatabase | null>(null);
@@ -16,6 +17,8 @@ export default function AssignmentTracker() {
   const [currentClassName, setCurrentClassName] = useState('');
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   const [isAddAssignmentModalOpen, setIsAddAssignmentModalOpen] = useState(false);
+  const [isEditAssignmentModalOpen, setIsEditAssignmentModalOpen] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -167,6 +170,32 @@ export default function AssignmentTracker() {
     }
   };
 
+  const handleEditAssignment = (assignment: Assignment) => {
+    setEditingAssignment(assignment);
+    setIsEditAssignmentModalOpen(true);
+  };
+
+  const handleUpdateAssignment = async (assignmentData: {
+    title: string;
+    description: string;
+    type: string;
+    dueDate?: string;
+  }) => {
+    if (!db || !currentClassId || !editingAssignment) return;
+
+    try {
+      await db.updateAssignment(editingAssignment.id!, assignmentData);
+      // Reload assignments directly
+      const assignmentList = await db.getAssignmentsByClass(currentClassId);
+      setAssignments(assignmentList);
+      setIsEditAssignmentModalOpen(false);
+      setEditingAssignment(null);
+    } catch (error) {
+      console.error('Failed to update assignment:', error);
+      alert('Failed to update assignment. Please try again.');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -251,6 +280,7 @@ export default function AssignmentTracker() {
                   assignment={assignment}
                   onToggleComplete={handleToggleAssignmentCompletion}
                   onDelete={handleDeleteAssignment}
+                  onEdit={handleEditAssignment}
                 />
               ))}
             </div>
@@ -279,6 +309,26 @@ export default function AssignmentTracker() {
           onSubmit={handleAddAssignment}
           onCancel={() => setIsAddAssignmentModalOpen(false)}
         />
+      </Modal>
+
+      <Modal
+        isOpen={isEditAssignmentModalOpen}
+        onClose={() => {
+          setIsEditAssignmentModalOpen(false);
+          setEditingAssignment(null);
+        }}
+        title="Edit Assignment"
+      >
+        {editingAssignment && (
+          <EditAssignmentForm
+            assignment={editingAssignment}
+            onSubmit={handleUpdateAssignment}
+            onCancel={() => {
+              setIsEditAssignmentModalOpen(false);
+              setEditingAssignment(null);
+            }}
+          />
+        )}
       </Modal>
     </div>
   );
