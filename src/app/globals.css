@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: #ffffff;
+  color: #171717;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Custom styles for enhanced UX */
+.due-today {
+  color: #dc2626 !important;
+  font-weight: 600;
+}
+
+.due-soon {
+  color: #ea580c !important;
+}
+
+.overdue {
+  color: #dc2626 !important;
+}
+
+/* Smooth transitions for better UX */
+* {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Better focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Success and error states for form inputs */
+input.success {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+input.error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
