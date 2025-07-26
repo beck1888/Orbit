@@ -69,10 +69,216 @@ class AssignmentTracker {
             }
         });
 
-        // Set default date to today
+        // Setup smart date and time formatting
+        this.setupDateTimeFormatting();
+    }
+
+    setupDateTimeFormatting() {
         const dateInput = document.getElementById('assignment-date');
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.value = today;
+        const timeInput = document.getElementById('assignment-time');
+
+        // Date formatting
+        dateInput.addEventListener('blur', (e) => {
+            this.formatDateInput(e.target);
+        });
+
+        dateInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab' || e.key === 'Enter') {
+                this.formatDateInput(e.target);
+            }
+        });
+
+        // Time formatting
+        timeInput.addEventListener('blur', (e) => {
+            this.formatTimeInput(e.target);
+        });
+
+        timeInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab' || e.key === 'Enter') {
+                this.formatTimeInput(e.target);
+            }
+        });
+    }
+
+    formatDateInput(input) {
+        const value = input.value.trim();
+        if (!value) return;
+
+        const currentYear = new Date().getFullYear();
+        let parsedDate = null;
+
+        // Try various date formats
+        const datePatterns = [
+            // M/D, M/DD, MM/D, MM/DD
+            /^(\d{1,2})\/(\d{1,2})$/,
+            // M/D/YY, M/D/YYYY, MM/DD/YY, MM/DD/YYYY
+            /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/,
+            // Month DD, Month D
+            /^([a-zA-Z]+)\s+(\d{1,2})$/,
+            // Month DD, YYYY
+            /^([a-zA-Z]+)\s+(\d{1,2}),?\s+(\d{4})$/,
+        ];
+
+        // Pattern 1: M/D or MM/DD (assume current year)
+        if (datePatterns[0].test(value)) {
+            const [, month, day] = value.match(datePatterns[0]);
+            parsedDate = new Date(currentYear, parseInt(month) - 1, parseInt(day));
+        }
+        // Pattern 2: M/D/YY or M/D/YYYY
+        else if (datePatterns[1].test(value)) {
+            const [, month, day, year] = value.match(datePatterns[1]);
+            let fullYear = parseInt(year);
+            if (fullYear < 100) {
+                fullYear += fullYear < 50 ? 2000 : 1900;
+            }
+            parsedDate = new Date(fullYear, parseInt(month) - 1, parseInt(day));
+        }
+        // Pattern 3: Month DD (assume current year)
+        else if (datePatterns[2].test(value)) {
+            const [, monthName, day] = value.match(datePatterns[2]);
+            const monthIndex = this.getMonthIndex(monthName);
+            if (monthIndex !== -1) {
+                parsedDate = new Date(currentYear, monthIndex, parseInt(day));
+            }
+        }
+        // Pattern 4: Month DD, YYYY
+        else if (datePatterns[3].test(value)) {
+            const [, monthName, day, year] = value.match(datePatterns[3]);
+            const monthIndex = this.getMonthIndex(monthName);
+            if (monthIndex !== -1) {
+                parsedDate = new Date(parseInt(year), monthIndex, parseInt(day));
+            }
+        }
+
+        if (parsedDate && !isNaN(parsedDate.getTime())) {
+            // Format as "Month DDth, YYYY"
+            const options = { month: 'long', day: 'numeric', year: 'numeric' };
+            const formatted = parsedDate.toLocaleDateString('en-US', options);
+            input.value = formatted;
+            input.dataset.isoDate = parsedDate.toISOString().split('T')[0];
+            
+            // Show success feedback
+            input.classList.remove('error');
+            input.classList.add('success');
+            setTimeout(() => {
+                input.classList.remove('success');
+            }, 2000);
+        } else {
+            // If parsing failed, show an error style briefly
+            input.classList.remove('success');
+            input.classList.add('error');
+            setTimeout(() => {
+                input.classList.remove('error');
+            }, 2000);
+        }
+    }
+
+    formatTimeInput(input) {
+        const value = input.value.trim();
+        if (!value) return;
+
+        let parsedTime = null;
+        const timePatterns = [
+            // H:MM, HH:MM
+            /^(\d{1,2}):(\d{2})$/,
+            // H:MMam/pm, HH:MMam/pm, H:MM am/pm, HH:MM am/pm
+            /^(\d{1,2}):(\d{2})\s*(am|pm)$/i,
+            // Ham/pm, HHam/pm, H am/pm, HH am/pm
+            /^(\d{1,2})\s*(am|pm)$/i,
+            // Just numbers like 330, 1430 (military time)
+            /^(\d{3,4})$/,
+        ];
+
+        // Pattern 1: H:MM or HH:MM (24-hour format)
+        if (timePatterns[0].test(value)) {
+            const [, hours, minutes] = value.match(timePatterns[0]);
+            const h = parseInt(hours);
+            const m = parseInt(minutes);
+            if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+                parsedTime = { hours: h, minutes: m };
+            }
+        }
+        // Pattern 2: H:MM am/pm
+        else if (timePatterns[1].test(value)) {
+            const [, hours, minutes, period] = value.match(timePatterns[1]);
+            let h = parseInt(hours);
+            const m = parseInt(minutes);
+            
+            if (period.toLowerCase() === 'pm' && h !== 12) h += 12;
+            if (period.toLowerCase() === 'am' && h === 12) h = 0;
+            
+            if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+                parsedTime = { hours: h, minutes: m };
+            }
+        }
+        // Pattern 3: H am/pm (assume :00 minutes)
+        else if (timePatterns[2].test(value)) {
+            const [, hours, period] = value.match(timePatterns[2]);
+            let h = parseInt(hours);
+            
+            if (period.toLowerCase() === 'pm' && h !== 12) h += 12;
+            if (period.toLowerCase() === 'am' && h === 12) h = 0;
+            
+            if (h >= 0 && h <= 23) {
+                parsedTime = { hours: h, minutes: 0 };
+            }
+        }
+        // Pattern 4: Military time like 1430, 330
+        else if (timePatterns[3].test(value)) {
+            const timeStr = value.padStart(4, '0');
+            const h = parseInt(timeStr.substring(0, 2));
+            const m = parseInt(timeStr.substring(2));
+            
+            if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+                parsedTime = { hours: h, minutes: m };
+            }
+        }
+
+        if (parsedTime) {
+            // Format as 12-hour time with am/pm
+            const formatted = this.formatTime12Hour(parsedTime.hours, parsedTime.minutes);
+            input.value = formatted;
+            input.dataset.isoTime = `${parsedTime.hours.toString().padStart(2, '0')}:${parsedTime.minutes.toString().padStart(2, '0')}`;
+            
+            // Show success feedback
+            input.classList.remove('error');
+            input.classList.add('success');
+            setTimeout(() => {
+                input.classList.remove('success');
+            }, 2000);
+        } else {
+            // If parsing failed, show an error style briefly
+            input.classList.remove('success');
+            input.classList.add('error');
+            setTimeout(() => {
+                input.classList.remove('error');
+            }, 2000);
+        }
+    }
+
+    getMonthIndex(monthName) {
+        const months = [
+            'january', 'february', 'march', 'april', 'may', 'june',
+            'july', 'august', 'september', 'october', 'november', 'december'
+        ];
+        const shortMonths = [
+            'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+            'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+        ];
+        
+        const lowerMonth = monthName.toLowerCase();
+        let index = months.findIndex(month => month.startsWith(lowerMonth));
+        if (index === -1) {
+            index = shortMonths.findIndex(month => month.startsWith(lowerMonth));
+        }
+        return index;
+    }
+
+    formatTime12Hour(hours, minutes) {
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours === 0 ? 12 : (hours > 12 ? hours - 12 : hours);
+        const displayMinutes = minutes.toString().padStart(2, '0');
+        return `${displayHours}:${displayMinutes} ${period}`;
     }
 
     async loadClasses() {
@@ -258,8 +464,8 @@ class AssignmentTracker {
     async handleAddAssignment() {
         const title = document.getElementById('assignment-title').value.trim();
         const description = document.getElementById('assignment-description').value.trim();
-        const date = document.getElementById('assignment-date').value;
-        const time = document.getElementById('assignment-time').value;
+        const dateInput = document.getElementById('assignment-date');
+        const timeInput = document.getElementById('assignment-time');
 
         if (!title) {
             alert('Please enter an assignment title');
@@ -267,8 +473,31 @@ class AssignmentTracker {
         }
 
         let dueDate = null;
-        if (date) {
-            dueDate = time ? `${date}T${time}` : `${date}T23:59`;
+        if (dateInput.value) {
+            // Use the ISO date if it was parsed, otherwise try to parse the current value
+            const isoDate = dateInput.dataset.isoDate;
+            if (isoDate) {
+                // If we have a time, use it; otherwise default to end of day
+                if (timeInput.value && timeInput.dataset.isoTime) {
+                    dueDate = `${isoDate}T${timeInput.dataset.isoTime}`;
+                } else {
+                    dueDate = `${isoDate}T23:59`;
+                }
+            } else {
+                // Try to parse the date one more time
+                this.formatDateInput(dateInput);
+                const newIsoDate = dateInput.dataset.isoDate;
+                if (newIsoDate) {
+                    if (timeInput.value && timeInput.dataset.isoTime) {
+                        dueDate = `${newIsoDate}T${timeInput.dataset.isoTime}`;
+                    } else {
+                        dueDate = `${newIsoDate}T23:59`;
+                    }
+                } else {
+                    alert('Please enter a valid date format (e.g., 4/24 or April 24)');
+                    return;
+                }
+            }
         }
 
         const assignmentData = {
@@ -284,7 +513,10 @@ class AssignmentTracker {
             // Clear form
             document.getElementById('assignment-title').value = '';
             document.getElementById('assignment-description').value = '';
-            document.getElementById('assignment-time').value = '';
+            dateInput.value = '';
+            timeInput.value = '';
+            delete dateInput.dataset.isoDate;
+            delete timeInput.dataset.isoTime;
             
             // Close modal
             document.getElementById('add-assignment-modal').style.display = 'none';

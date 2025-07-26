@@ -293,6 +293,7 @@ body {
     border-radius: 8px;
     font-size: 16px;
     font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .modal input:focus,
@@ -300,6 +301,16 @@ body {
     outline: none;
     border-color: #007aff;
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.modal input.success {
+    border-color: #34c759;
+    box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.1);
+}
+
+.modal input.error {
+    border-color: #ff3b30;
+    box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.1);
 }
 
 .modal textarea {
