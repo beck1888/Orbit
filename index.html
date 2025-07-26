@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>Classes</h1>
+                <button id="add-class-btn" class="add-btn">+ Add Class</button>
+            </div>
+            <div id="class-list" class="class-list">
+                <!-- Classes will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h2 id="current-class">Select a class to view assignments</h2>
+                <button id="add-assignment-btn" class="add-btn" style="display: none;">+ Add Assignment</button>
+            </div>
+            <div id="assignments-container" class="assignments-container">
+                <div class="welcome-message">
+                    <p>Select a class from the sidebar to view assignments, or add a new class to get started.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Class Modal -->
+    <div id="add-class-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Add New Class</h3>
+            <form id="add-class-form">
+                <input type="text" id="class-name" placeholder="Class name (e.g., Math, English)" required>
+                <button type="submit">Add Class</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Assignment Modal -->
+    <div id="add-assignment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Add New Assignment</h3>
+            <form id="add-assignment-form">
+                <input type="text" id="assignment-title" placeholder="Assignment title" required>
+                <textarea id="assignment-description" placeholder="Description (optional)"></textarea>
+                <div class="date-time-container">
+                    <label for="assignment-date">Due Date:</label>
+                    <input type="date" id="assignment-date" required>
+                    <label for="assignment-time">Due Time (optional):</label>
+                    <input type="time" id="assignment-time">
+                </div>
+                <button type="submit">Add Assignment</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
