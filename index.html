@@ -53,6 +53,15 @@
             <form id="add-assignment-form">
                 <input type="text" id="assignment-title" placeholder="Assignment title" required>
                 <textarea id="assignment-description" placeholder="Description (optional)"></textarea>
+                <div class="form-field">
+                    <label for="assignment-type">Assignment Type:</label>
+                    <select id="assignment-type" required>
+                        <option value="">Select type...</option>
+                        <option value="Homework" selected>Homework</option>
+                        <option value="Projects">Projects</option>
+                        <option value="Exams">Exams</option>
+                    </select>
+                </div>
                 <div class="date-time-container">
                     <label for="assignment-date">Due Date:</label>
                     <input type="text" id="assignment-date" placeholder="e.g., 4/24 or April 24" required>

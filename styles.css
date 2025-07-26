@@ -159,6 +159,31 @@ body {
     margin-bottom: 5px;
 }
 
+.assignment-type {
+    display: inline-block;
+    background-color: #007aff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.assignment-type-homework {
+    background-color: #007aff;
+}
+
+.assignment-type-projects {
+    background-color: #ff9500;
+}
+
+.assignment-type-exams {
+    background-color: #ff3b30;
+}
+
 .assignment-completed .assignment-title {
     text-decoration: line-through;
 }
@@ -287,7 +312,8 @@ body {
 }
 
 .modal input,
-.modal textarea {
+.modal textarea,
+.modal select {
     padding: 12px;
     border: 1px solid #e5e5e7;
     border-radius: 8px;
@@ -297,7 +323,8 @@ body {
 }
 
 .modal input:focus,
-.modal textarea:focus {
+.modal textarea:focus,
+.modal select:focus {
     outline: none;
     border-color: #007aff;
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
@@ -324,7 +351,14 @@ body {
     gap: 10px;
 }
 
-.date-time-container label {
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.date-time-container label,
+.form-field label {
     font-weight: 500;
     margin-bottom: 5px;
 }

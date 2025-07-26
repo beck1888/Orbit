@@ -455,6 +455,7 @@ class AssignmentTracker {
                     <button class="delete-assignment-btn delete-btn" 
                             data-assignment-id="${assignment.id}">Delete</button>
                 </div>
+                ${assignment.type ? `<div class="assignment-type assignment-type-${assignment.type.toLowerCase()}">${this.escapeHtml(assignment.type)}</div>` : ''}
                 ${assignment.description ? `<div class="assignment-description">${this.escapeHtml(assignment.description)}</div>` : ''}
                 <div class="assignment-due ${dueDateClass}">${dueDateText}</div>
             </div>
@@ -464,11 +465,17 @@ class AssignmentTracker {
     async handleAddAssignment() {
         const title = document.getElementById('assignment-title').value.trim();
         const description = document.getElementById('assignment-description').value.trim();
+        const type = document.getElementById('assignment-type').value;
         const dateInput = document.getElementById('assignment-date');
         const timeInput = document.getElementById('assignment-time');
 
         if (!title) {
             alert('Please enter an assignment title');
+            return;
+        }
+
+        if (!type) {
+            alert('Please select an assignment type');
             return;
         }
 
@@ -504,6 +511,7 @@ class AssignmentTracker {
             classId: this.currentClassId,
             title,
             description: description || null,
+            type,
             dueDate
         };
 
@@ -513,6 +521,7 @@ class AssignmentTracker {
             // Clear form
             document.getElementById('assignment-title').value = '';
             document.getElementById('assignment-description').value = '';
+            document.getElementById('assignment-type').value = '';
             dateInput.value = '';
             timeInput.value = '';
             delete dateInput.dataset.isoDate;
