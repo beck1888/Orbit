@@ -197,7 +197,6 @@ export default function AssignmentTracker() {
         currentClassId={currentClassId} 
         onSelectClass={handleSelectClass} 
         onDeleteClass={handleDeleteClass} 
-        onAddClass={() => setIsAddClassModalOpen(true)} 
       />
 
       <div className="flex-1 flex flex-col">

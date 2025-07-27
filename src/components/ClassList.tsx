@@ -9,22 +9,14 @@ interface ClassListProps {
   currentClassId: number | null;
   onSelectClass: (classId: number, className: string) => void;
   onDeleteClass: (classId: number, className: string) => void;
-  onAddClass: () => void;
 }
 
-export default function ClassList({ classes, currentClassId, onSelectClass, onDeleteClass, onAddClass }: ClassListProps) {
+export default function ClassList({ classes, currentClassId, onSelectClass, onDeleteClass }: ClassListProps) {
   return (
     <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
       <div className="p-5 border-b border-gray-200">
         <h1 className="text-2xl font-semibold mb-4">Classes</h1>
-        <button
-          onClick={onAddClass}
-          className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors"
-        >
-          + Add Class
-        </button>
       </div>
-      
       <div className="flex-1 overflow-y-auto">
         {classes.length === 0 ? (
           <div className="p-5 text-center text-gray-500">
