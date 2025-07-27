@@ -2,6 +2,7 @@
 
 import { Assignment } from '@/utils/database';
 import { useEffect } from 'react';
+import Image from 'next/image';
 
 interface AssignmentCardProps {
   assignment: Assignment;
@@ -32,35 +33,37 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
   }, [assignment.completed]);
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow ${
+    <div className={`bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow group ${
       assignment.completed ? 'opacity-70 bg-gray-50' : ''
     }`}>
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center space-x-2 flex-1 min-w-0">
-          <input
-            type="checkbox"
-            checked={assignment.completed}
-            onChange={(e) => onToggleComplete(assignment.id!, e.target.checked)}
-            className="transform scale-110 flex-shrink-0"
-          />
+          <div className="hover:bg-gray-200 p-2 rounded flex items-center justify-center">
+            <input
+              type="checkbox"
+              checked={assignment.completed}
+              onChange={(e) => onToggleComplete(assignment.id!, e.target.checked)}
+              className="transform scale-110 flex-shrink-0"
+            />
+          </div>
           <h3 className={`text-sm font-semibold truncate ${
             assignment.completed ? 'line-through text-gray-500' : ''
           }`} title={assignment.title}>
             {assignment.title}
           </h3>
         </div>
-        <div className="flex space-x-1 flex-shrink-0 ml-2">
+        <div className="flex space-x-1 flex-shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onEdit(assignment)}
-            className="px-2 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
+            className="p-1 text-blue-500 rounded transition-colors hover:bg-gray-200"
           >
-            Edit
+            <Image src="/icons/edit.svg" alt="Edit" width={16} height={16} />
           </button>
           <button
             onClick={() => onDelete(assignment.id!)}
-            className="px-2 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+            className="p-1 text-red-500 rounded transition-colors hover:bg-gray-200"
           >
-            ×
+            <Image src="/icons/del.svg" alt="Delete" width={16} height={16} />
           </button>
         </div>
       </div>
