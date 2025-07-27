@@ -13,6 +13,8 @@ interface DashboardStats {
   totalTasks: number;
   tasksListToday: Assignment[];
   tasksListTomorrow: Assignment[];
+  tasksListNext7Days: Assignment[];
+  tasksListAll: Assignment[];
 }
 
 export default function Dashboard({ db }: DashboardProps) {
@@ -21,11 +23,13 @@ export default function Dashboard({ db }: DashboardProps) {
     tasksTomorrow: 0,
     totalTasks: 0,
     tasksListToday: [],
-    tasksListTomorrow: []
+    tasksListTomorrow: [],
+    tasksListNext7Days: [],
+    tasksListAll: []
   });
   const [classes, setClasses] = useState<Class[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedView, setSelectedView] = useState<'today' | 'tomorrow'>('today');
+  const [selectedView, setSelectedView] = useState<'today' | 'tomorrow' | 'next7days' | 'all'>('today');
 
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -64,12 +68,25 @@ export default function Dashboard({ db }: DashboardProps) {
           return dueDate === tomorrowString;
         });
 
+        // Filter assignments for next 7 days from all incomplete assignments
+        const next7Days = new Date(today);
+        next7Days.setDate(next7Days.getDate() + 7);
+        const next7DaysString = next7Days.toISOString().split('T')[0];
+        
+        const tasksNext7Days = allIncompleteAssignments.filter((assignment: Assignment) => {
+          if (!assignment.dueDate) return false;
+          const dueDate = new Date(assignment.dueDate).toISOString().split('T')[0];
+          return dueDate >= todayString && dueDate <= next7DaysString;
+        });
+
         setStats({
           tasksToday: tasksToday.length,
           tasksTomorrow: tasksTomorrow.length,
           totalTasks: allIncompleteAssignments.length,
           tasksListToday: tasksToday,
-          tasksListTomorrow: tasksTomorrow
+          tasksListTomorrow: tasksTomorrow,
+          tasksListNext7Days: tasksNext7Days,
+          tasksListAll: allIncompleteAssignments
         });
       } catch (error) {
         console.error('Failed to load dashboard data:', error);
@@ -159,29 +176,63 @@ export default function Dashboard({ db }: DashboardProps) {
             <h2 className="text-xl font-semibold text-gray-800">My Tasks</h2>
             <select
               value={selectedView}
-              onChange={(e) => setSelectedView(e.target.value as 'today' | 'tomorrow')}
+              onChange={(e) => setSelectedView(e.target.value as 'today' | 'tomorrow' | 'next7days' | 'all')}
               className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="today">Today</option>
               <option value="tomorrow">Tomorrow</option>
+              <option value="next7days">7 Days</option>
+              <option value="all">All</option>
             </select>
           </div>
           <div className="p-6">
             {(() => {
-              const currentTasks = selectedView === 'today' ? stats.tasksListToday : stats.tasksListTomorrow;
-              const viewLabel = selectedView === 'today' ? 'today' : 'tomorrow';
+              let currentTasks: Assignment[] = [];
+              let viewLabel = '';
+              let emptyMessage = '';
+              let badgeColor = '';
+              let badgeText = '';
+
+              switch (selectedView) {
+                case 'today':
+                  currentTasks = stats.tasksListToday;
+                  viewLabel = 'today';
+                  emptyMessage = "Enjoy your day or get ahead on tomorrow&apos;s work.";
+                  badgeColor = 'bg-red-100 text-red-800';
+                  badgeText = 'Due Today';
+                  break;
+                case 'tomorrow':
+                  currentTasks = stats.tasksListTomorrow;
+                  viewLabel = 'tomorrow';
+                  emptyMessage = 'Great! You have a free day tomorrow.';
+                  badgeColor = 'bg-yellow-100 text-yellow-800';
+                  badgeText = 'Due Tomorrow';
+                  break;
+                case 'next7days':
+                  currentTasks = stats.tasksListNext7Days;
+                  viewLabel = 'in the next 7 days';
+                  emptyMessage = 'Looks like you have a relaxing week ahead!';
+                  badgeColor = 'bg-blue-100 text-blue-800';
+                  badgeText = 'Next 7 Days';
+                  break;
+                case 'all':
+                  currentTasks = stats.tasksListAll;
+                  viewLabel = '';
+                  emptyMessage = 'No tasks at all! Time to add some assignments.';
+                  badgeColor = 'bg-gray-100 text-gray-800';
+                  badgeText = 'To-Do';
+                  break;
+              }
               
               return currentTasks.length === 0 ? (
                 <div className="text-center py-8">
                   <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <p className="text-gray-500 text-lg">No tasks due {viewLabel}! 🎉</p>
-                  <p className="text-gray-400 text-sm mt-2">
-                    {selectedView === 'today' 
-                      ? "Enjoy your day or get ahead on tomorrow&apos;s work." 
-                      : "Great! You have a free day tomorrow."}
+                  <p className="text-gray-500 text-lg">
+                    {selectedView === 'all' ? 'No tasks found! 🎉' : `No tasks due ${viewLabel}! 🎉`}
                   </p>
+                  <p className="text-gray-400 text-sm mt-2">{emptyMessage}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -209,17 +260,13 @@ export default function Dashboard({ db }: DashboardProps) {
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                               </svg>
-                              {task.dueDate && formatDueDate(task.dueDate)}
+                              {task.dueDate ? formatDueDate(task.dueDate) : 'No due date'}
                             </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2 ml-4">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            selectedView === 'today' 
-                              ? 'bg-red-100 text-red-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            Due {selectedView === 'today' ? 'Today' : 'Tomorrow'}
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${badgeColor}`}>
+                            {badgeText}
                           </span>
                         </div>
                       </div>
