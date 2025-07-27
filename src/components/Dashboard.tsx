@@ -252,7 +252,7 @@ export default function Dashboard({ db }: DashboardProps) {
                 case 'today':
                   currentTasks = [...stats.tasksListOverdue, ...stats.tasksListToday];
                   viewLabel = 'today';
-                  emptyMessage = "Enjoy your day or get ahead on tomorrow&apos;s work.";
+                  emptyMessage = "Enjoy your day or get ahead on tomorrow's work.";
                   badgeColor = 'bg-red-100 text-red-800';
                   badgeText = 'Due Today';
                   break;
