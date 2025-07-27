@@ -28,11 +28,7 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
   };
 
   useEffect(() => {
-    if (assignment.completed) {
-      const audio = new Audio('/sounds/task-done.mp3');
-      audio.load(); // Preload the audio to improve response time
-      audio.play();
-    }
+    // Removed audio play logic
   }, [assignment.completed]);
 
   return (
