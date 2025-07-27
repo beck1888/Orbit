@@ -8,7 +8,6 @@ import AddAssignmentForm from '@/components/AddAssignmentForm';
 import EditAssignmentForm from '@/components/EditAssignmentForm';
 import ClassList from './ClassList';
 import AssignmentList from './AssignmentList';
-import Header from './Header';
 import Dashboard from './Dashboard';
 
 export default function AssignmentTracker() {
@@ -207,9 +206,6 @@ export default function AssignmentTracker() {
           <Dashboard db={db} />
         ) : (
           <>
-            <Header 
-              currentClassName={currentClassName} 
-            />
             <AssignmentList 
               assignments={assignments} 
               onToggleAssignmentCompletion={handleToggleAssignmentCompletion} 
