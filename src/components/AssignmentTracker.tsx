@@ -15,7 +15,6 @@ export default function AssignmentTracker() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [currentClassId, setCurrentClassId] = useState<number | null>(null);
-  const [currentClassName, setCurrentClassName] = useState('');
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   const [isAddAssignmentModalOpen, setIsAddAssignmentModalOpen] = useState(false);
   const [isEditAssignmentModalOpen, setIsEditAssignmentModalOpen] = useState(false);
@@ -86,7 +85,6 @@ export default function AssignmentTracker() {
         
         if (currentClassId === classId) {
           setCurrentClassId(null);
-          setCurrentClassName('');
           setAssignments([]);
         }
       } catch (error) {
@@ -96,9 +94,8 @@ export default function AssignmentTracker() {
     }
   };
 
-  const handleSelectClass = (classId: number, className: string) => {
+  const handleSelectClass = (classId: number) => {
     setCurrentClassId(classId);
-    setCurrentClassName(className);
   };
 
   const handleAddAssignment = async (assignmentData: {
