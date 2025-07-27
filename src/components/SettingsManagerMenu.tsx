@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 interface SettingsManagerMenuProps {
   selectedSection: string;
   onSelectSection: (section: string) => void;
