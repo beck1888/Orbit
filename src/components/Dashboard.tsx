@@ -121,8 +121,8 @@ export default function Dashboard({ db }: DashboardProps) {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="max-w-6xl mx-auto">
+    <div className="p-6 bg-gray-50 h-screen flex flex-col">
+      <div className="max-w-6xl mx-auto w-full flex flex-col flex-grow min-h-0">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
         
         {/* Stats Cards */}
@@ -171,8 +171,8 @@ export default function Dashboard({ db }: DashboardProps) {
         </div>
 
         {/* My Tasks */}
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="bg-white rounded-lg shadow-md flex flex-col flex-grow min-h-0">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
             <h2 className="text-xl font-semibold text-gray-800">My Tasks</h2>
             <select
               value={selectedView}
@@ -185,7 +185,7 @@ export default function Dashboard({ db }: DashboardProps) {
               <option value="all">All</option>
             </select>
           </div>
-          <div className="p-6">
+          <div className="p-6 overflow-y-auto">
             {(() => {
               let currentTasks: Assignment[] = [];
               let viewLabel = '';
