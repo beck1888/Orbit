@@ -211,4 +211,28 @@ export class AssignmentDatabase {
       request.onerror = () => reject(request.error);
     });
   }
+
+  async getAllIncompleteAssignments(): Promise<Assignment[]> {
+    if (!this.db) throw new Error('Database not initialized');
+    
+    const transaction = this.db.transaction(['assignments'], 'readonly');
+    const store = transaction.objectStore('assignments');
+
+    return new Promise((resolve, reject) => {
+      const request = store.getAll();
+      request.onsuccess = () => {
+        const assignments = request.result;
+        const incomplete = assignments
+          .filter(assignment => !assignment.completed)
+          .sort((a, b) => {
+            if (!a.dueDate && !b.dueDate) return 0;
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+          });
+        resolve(incomplete);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
 }

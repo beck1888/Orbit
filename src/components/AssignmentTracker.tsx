@@ -9,6 +9,7 @@ import EditAssignmentForm from '@/components/EditAssignmentForm';
 import ClassList from './ClassList';
 import AssignmentList from './AssignmentList';
 import Header from './Header';
+import Dashboard from './Dashboard';
 
 export default function AssignmentTracker() {
   const [db, setDb] = useState<AssignmentDatabase | null>(null);
@@ -200,24 +201,21 @@ export default function AssignmentTracker() {
       />
 
       <div className="flex-1 flex flex-col">
-        <Header 
-          currentClassName={currentClassName} 
-        />
-
         {!currentClassId ? (
-          <div className="text-center mt-24">
-            <p className="text-lg text-gray-500">
-              Select a class from the sidebar to view assignments, or add a new class to get started.
-            </p>
-          </div>
+          <Dashboard db={db} />
         ) : (
-          <AssignmentList 
-            assignments={assignments} 
-            onToggleAssignmentCompletion={handleToggleAssignmentCompletion} 
-            onDeleteAssignment={handleDeleteAssignment} 
-            onEditAssignment={handleEditAssignment} 
-            onAddAssignment={handleOpenAddAssignmentModal}
-          />
+          <>
+            <Header 
+              currentClassName={currentClassName} 
+            />
+            <AssignmentList 
+              assignments={assignments} 
+              onToggleAssignmentCompletion={handleToggleAssignmentCompletion} 
+              onDeleteAssignment={handleDeleteAssignment} 
+              onEditAssignment={handleEditAssignment} 
+              onAddAssignment={handleOpenAddAssignmentModal}
+            />
+          </>
         )}
       </div>
 
