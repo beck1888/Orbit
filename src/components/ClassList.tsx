@@ -5,6 +5,7 @@ import ClassItem from './ClassItem';
 import Modal from './Modal';
 import AddClassForm from './AddClassForm';
 import HistoryView from './HistoryView';
+import SettingsManagerMenu from './SettingsManagerMenu';
 
 interface ClassListProps {
   classes: Class[];
@@ -19,7 +20,7 @@ import { useState } from 'react';
 
 export default function ClassList({ classes, setClasses, db, currentClassId, onSelectClass, onDeleteClass }: ClassListProps) {
   const [isManagePanelOpen, setIsManagePanelOpen] = useState(false);
-  const [selectedManageSection, setSelectedManageSection] = useState('class-management');
+  const [selectedManageSection, setSelectedManageSection] = useState('history');
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
 
   const handleAddClass = async (className: string, classEmoji: string) => {
@@ -73,84 +74,11 @@ export default function ClassList({ classes, setClasses, db, currentClassId, onS
       {isManagePanelOpen && (
         <div className="fixed inset-0 z-50 flex bg-black bg-opacity-40">
           <div className="bg-gray-50 w-full h-full flex">
-            {/* Sidebar for manage panel */}
-            <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-              <div className="p-5 border-b border-gray-200 flex items-center justify-between">
-                <h1 className="text-2xl font-semibold">Manage</h1>
-                <button
-                  className="text-gray-400 hover:text-gray-600 text-2xl"
-                  onClick={() => setIsManagePanelOpen(false)}
-                  aria-label="Close"
-                >
-                  &times;
-                </button>
-              </div>
-              
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-3">
-                  <div className="mb-2">
-                    <button 
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedManageSection === 'class-management' 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'hover:bg-gray-100 text-gray-700'
-                      }`}
-                      onClick={() => setSelectedManageSection('class-management')}
-                    >
-                      Class Management
-                    </button>
-                  </div>
-                  <div className="mb-2">
-                    <button 
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedManageSection === 'preferences' 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'hover:bg-gray-100 text-gray-700'
-                      }`}
-                      onClick={() => setSelectedManageSection('preferences')}
-                    >
-                      Preferences
-                    </button>
-                  </div>
-                  <div className="mb-2">
-                    <button 
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedManageSection === 'history' 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'hover:bg-gray-100 text-gray-700'
-                      }`}
-                      onClick={() => setSelectedManageSection('history')}
-                    >
-                      History
-                    </button>
-                  </div>
-                  <div className="mb-2">
-                    <button 
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedManageSection === 'data-storage' 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'hover:bg-gray-100 text-gray-700'
-                      }`}
-                      onClick={() => setSelectedManageSection('data-storage')}
-                    >
-                      Data & Storage
-                    </button>
-                  </div>
-                  <div className="mb-2">
-                    <button 
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedManageSection === 'import-export' 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'hover:bg-gray-100 text-gray-700'
-                      }`}
-                      onClick={() => setSelectedManageSection('import-export')}
-                    >
-                      Import/Export
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <SettingsManagerMenu
+              selectedSection={selectedManageSection}
+              onSelectSection={setSelectedManageSection}
+              onClose={() => setIsManagePanelOpen(false)}
+            />
 
             {/* Main content area */}
             <div className="flex-1 flex flex-col">
@@ -259,7 +187,7 @@ export default function ClassList({ classes, setClasses, db, currentClassId, onS
                 </>
               )}
 
-              {selectedManageSection === 'data-storage' && (
+              {selectedManageSection === 'data' && (
                 <>
                   <div className="bg-white border-b border-gray-200 p-6">
                     <h2 className="text-xl font-semibold text-gray-800">Data & Storage</h2>
@@ -287,45 +215,6 @@ export default function ClassList({ classes, setClasses, db, currentClassId, onS
                           </button>
                           <button className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm">
                             Reset Settings
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {selectedManageSection === 'import-export' && (
-                <>
-                  <div className="bg-white border-b border-gray-200 p-6">
-                    <h2 className="text-xl font-semibold text-gray-800">Import/Export</h2>
-                    <p className="text-gray-600 mt-1">Backup and restore your data</p>
-                  </div>
-                  
-                  <div className="flex-1 p-6 overflow-y-auto">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Export Options */}
-                      <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h3 className="text-lg font-medium text-gray-800 mb-4">Export Data</h3>
-                        <div className="space-y-2">
-                          <button className="w-full bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors text-sm">
-                            Export as JSON
-                          </button>
-                          <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm">
-                            Export as CSV
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Import Options */}
-                      <div className="bg-white rounded-lg border border-gray-200 p-6">
-                        <h3 className="text-lg font-medium text-gray-800 mb-4">Import Data</h3>
-                        <div className="space-y-2">
-                          <button className="w-full bg-yellow-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-yellow-600 transition-colors text-sm">
-                            Import from JSON
-                          </button>
-                          <button className="w-full bg-purple-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-600 transition-colors text-sm">
-                            Import from CSV
                           </button>
                         </div>
                       </div>
