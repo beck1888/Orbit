@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Assignment, Class, AssignmentDatabase } from '@/utils/database';
 
 interface HistoryViewProps {
@@ -45,18 +46,6 @@ export default function HistoryView({ db }: HistoryViewProps) {
       setCompletedAssignments(updatedCompleted);
     } catch (error) {
       console.error('Failed to update assignment:', error);
-    }
-  };
-
-  const handleDeleteAssignment = async (assignmentId: number) => {
-    if (!db) return;
-
-    try {
-      await db.deleteAssignment(assignmentId);
-      // Remove from local state
-      setCompletedAssignments(prev => prev.filter(a => a.id !== assignmentId));
-    } catch (error) {
-      console.error('Failed to delete assignment:', error);
     }
   };
 
@@ -157,45 +146,23 @@ export default function HistoryView({ db }: HistoryViewProps) {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <span className="text-lg">{getClassEmoji(assignment.classId)}</span>
-                        <h4 className="font-semibold text-gray-900">{assignment.title}</h4>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {assignment.type}
-                        </span>
+                        <h4 className="font-semibold text-gray-900">{getClassName(assignment.classId)}</h4>
                       </div>
                       {assignment.description && (
                         <p className="text-gray-600 text-sm mb-2">{assignment.description}</p>
                       )}
                       <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>📚 {getClassName(assignment.classId)}</span>
-                        {assignment.dueDate && (
-                          <span>📅 Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
-                        )}
                         <span>✅ Completed: {formatCompletedDate(assignment.completedAt)}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
                       <button
                         onClick={() => handleToggleCompletion(assignment.id!, false)}
-                        className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-                        title="Mark as incomplete"
+                        className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
+                        title="Put Back"
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <polyline points="20,6 9,17 4,12"></polyline>
-                        </svg>
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (window.confirm('Are you sure you want to delete this assignment?')) {
-                            handleDeleteAssignment(assignment.id!);
-                          }
-                        }}
-                        className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-                        title="Delete assignment"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <polyline points="3,6 5,6 21,6"></polyline>
-                          <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"></path>
-                        </svg>
+                        <Image src="/icons/undo.svg" alt="Undo" width={16} height={16} />
+                        <span>Undo</span>
                       </button>
                     </div>
                   </div>
