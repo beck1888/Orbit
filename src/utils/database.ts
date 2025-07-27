@@ -9,7 +9,7 @@ export interface Class {
 export interface Assignment {
   id?: number;
   classId: number;
-  title: string;
+  title: string; // Correct property for assignment name
   description?: string;
   type: string;
   dueDate?: string;
@@ -250,7 +250,7 @@ export class AssignmentDatabase {
 
   async getAllCompletedAssignments(): Promise<Assignment[]> {
     if (!this.db) throw new Error('Database not initialized');
-    
+
     const transaction = this.db.transaction(['assignments'], 'readonly');
     const store = transaction.objectStore('assignments');
 
@@ -258,6 +258,7 @@ export class AssignmentDatabase {
       const request = store.getAll();
       request.onsuccess = () => {
         const assignments = request.result;
+        console.log('Fetched assignments:', assignments); // Debug log
         const completed = assignments
           .filter(assignment => assignment.completed)
           .sort((a, b) => {

@@ -49,14 +49,26 @@ export default function HistoryView({ db }: HistoryViewProps) {
     }
   };
 
-  const getClassName = (classId: number) => {
-    const foundClass = classes.find(c => c.id === classId);
-    return foundClass ? foundClass.name : 'Unknown Class';
+  const handleDeleteAssignment = async (assignmentId: number) => {
+    if (!db) return;
+
+    try {
+      await db.deleteAssignment(assignmentId);
+      const updatedCompleted = await db.getAllCompletedAssignments();
+      setCompletedAssignments(updatedCompleted);
+    } catch (error) {
+      console.error('Failed to delete assignment:', error);
+    }
   };
 
   const getClassEmoji = (classId: number) => {
     const foundClass = classes.find(c => c.id === classId);
     return foundClass ? foundClass.emoji : '📚';
+  };
+
+  const getClassName = (classId: number) => {
+    const foundClass = classes.find(c => c.id === classId);
+    return foundClass ? foundClass.name : 'Unknown Class';
   };
 
   const formatCompletedDate = (dateString?: string) => {
@@ -145,15 +157,16 @@ export default function HistoryView({ db }: HistoryViewProps) {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
+                        <h4 className="font-semibold text-gray-900 text-lg">{assignment.title || 'Unnamed Assignment'}</h4>
+                      </div>
+                      <div className="flex items-center gap-3 mb-2">
                         <span className="text-lg">{getClassEmoji(assignment.classId)}</span>
-                        <h4 className="font-semibold text-gray-900">{getClassName(assignment.classId)}</h4>
+                        <span className="text-gray-700">{getClassName(assignment.classId)}</span>
                       </div>
-                      {assignment.description && (
-                        <p className="text-gray-600 text-sm mb-2">{assignment.description}</p>
+                      {assignment.dueDate && (
+                        <div className="text-sm text-gray-500 mb-2">📅 Due: {formatCompletedDate(assignment.dueDate)}</div>
                       )}
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>✅ Completed: {formatCompletedDate(assignment.completedAt)}</span>
-                      </div>
+                      <div className="text-sm text-gray-500">✅ Completed: {formatCompletedDate(assignment.completedAt)}</div>
                     </div>
                     <div className="flex items-center gap-2 ml-4">
                       <button
@@ -163,6 +176,14 @@ export default function HistoryView({ db }: HistoryViewProps) {
                       >
                         <Image src="/icons/undo.svg" alt="Undo" width={16} height={16} />
                         <span>Undo</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAssignment(assignment.id!)}
+                        className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                        title="Delete"
+                      >
+                        <Image src="/icons/hist_del.svg" alt="Delete" width={16} height={16} />
+                        <span>Delete</span>
                       </button>
                     </div>
                   </div>
