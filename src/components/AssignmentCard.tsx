@@ -1,7 +1,6 @@
 'use client';
 
 import { Assignment } from '@/utils/database';
-import { getDueDateStatus } from '@/utils/dateTimeHelpers';
 import { useEffect } from 'react';
 
 interface AssignmentCardProps {
@@ -17,13 +16,14 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
   const getDueDateColor = (dueDateClass: string) => {
     switch (dueDateClass) {
       case 'overdue':
-        return 'text-red-500';
+        return 'text-red-500 font-bold'; // Bold red for overdue
       case 'due-today':
-        return 'text-red-600 font-semibold';
+        return 'text-green-500'; // Green for due today
       case 'due-soon':
-        return 'text-orange-500';
+      case 'due-later':
+        return 'text-blue-500'; // Blue for due tomorrow or later
       default:
-        return 'text-blue-500';
+        return 'text-gray-400';
     }
   };
 
@@ -92,3 +92,54 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
     </div>
   );
 }
+
+// Updated getDueDateStatus function
+const getDueDateStatus = (dueDate: string) => {
+  const now = new Date();
+  const dueDateObj = new Date(dueDate);
+
+  const formatTime = (date: Date) => {
+    const hours = date.getHours() % 12 || 12; // Convert to 12-hour format
+    const minutes = date.getMinutes();
+    const ampm = date.getHours() >= 12 ? 'PM' : 'AM';
+    return `${hours}:${minutes < 10 ? '0' + minutes : minutes} ${ampm}`; // Include AM/PM
+  };
+
+  const formatDate = (date: Date) => {
+    const year = date.getFullYear() !== now.getFullYear() ? `, ${date.getFullYear()}` : '';
+    return `${date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    })}${year}`;
+  };
+
+  if (
+    dueDateObj.getFullYear() === now.getFullYear() &&
+    dueDateObj.getMonth() === now.getMonth() &&
+    dueDateObj.getDate() === now.getDate()
+  ) {
+    return {
+      class: 'due-today',
+      text: `Due at ${formatTime(dueDateObj)}`,
+    };
+  } else if (
+    dueDateObj.getFullYear() === now.getFullYear() &&
+    dueDateObj.getMonth() === now.getMonth() &&
+    dueDateObj.getDate() === now.getDate() + 1
+  ) {
+    return {
+      class: 'due-soon',
+      text: `Due tomorrow at ${formatTime(dueDateObj)}`,
+    };
+  } else if (dueDateObj < now) {
+    return {
+      class: 'overdue',
+      text: 'Overdue',
+    };
+  } else {
+    return {
+      class: 'due-later',
+      text: `Due on ${formatDate(dueDateObj)} at ${formatTime(dueDateObj)}`,
+    };
+  }
+};
