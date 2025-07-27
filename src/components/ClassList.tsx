@@ -1,10 +1,14 @@
 'use client';
 
-import { Class } from '@/utils/database';
+import { Class, AssignmentDatabase } from '@/utils/database';
 import ClassItem from './ClassItem';
+import Modal from './Modal';
+import AddClassForm from './AddClassForm';
 
 interface ClassListProps {
   classes: Class[];
+  setClasses: React.Dispatch<React.SetStateAction<Class[]>>;
+  db: AssignmentDatabase | null;
   currentClassId: number | null;
   onSelectClass: (classId: number, className: string) => void;
   onDeleteClass: (classId: number, className: string) => void;
@@ -12,9 +16,24 @@ interface ClassListProps {
 
 import { useState } from 'react';
 
-export default function ClassList({ classes, currentClassId, onSelectClass, onDeleteClass }: ClassListProps) {
+export default function ClassList({ classes, setClasses, db, currentClassId, onSelectClass, onDeleteClass }: ClassListProps) {
   const [isManagePanelOpen, setIsManagePanelOpen] = useState(false);
   const [selectedManageSection, setSelectedManageSection] = useState('class-management');
+  const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
+
+  const handleAddClass = async (className: string, classEmoji: string) => {
+    if (!db) return;
+
+    try {
+      await db.addClass(className, classEmoji);
+      const updatedClasses = await db.getAllClasses();
+      setClasses(updatedClasses);
+      setIsAddClassModalOpen(false);
+    } catch (error) {
+      console.error('Failed to add class:', error);
+      alert('Failed to add class. Please try again.');
+    }
+  };
 
   return (
     <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
@@ -36,7 +55,6 @@ export default function ClassList({ classes, currentClassId, onSelectClass, onDe
               classItem={classItem}
               isActive={currentClassId === classItem.id}
               onSelect={() => onSelectClass(classItem.id!, classItem.name)}
-              onDelete={() => onDeleteClass(classItem.id!, classItem.name)}
             />
           ))
         )}
@@ -135,7 +153,10 @@ export default function ClassList({ classes, currentClassId, onSelectClass, onDe
                       {/* Add Class Section */}
                       <div className="bg-white rounded-lg border border-gray-200 p-6">
                         <h3 className="text-lg font-medium text-gray-800 mb-4">Add New Class</h3>
-                        <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                        <button
+                          className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors"
+                          onClick={() => setIsAddClassModalOpen(true)}
+                        >
                           + Add Class
                         </button>
                       </div>
@@ -149,8 +170,11 @@ export default function ClassList({ classes, currentClassId, onSelectClass, onDe
                           ) : (
                             classes.map((classItem) => (
                               <div key={classItem.id} className="flex items-center justify-between p-2 border border-gray-100 rounded">
-                                <span className="text-gray-700">{classItem.name}</span>
-                                <button 
+                                <span className="text-gray-700 flex items-center">
+                                  <span className="mr-2">{classItem.emoji}</span>
+                                  {classItem.name}
+                                </span>
+                                <button
                                   className="text-red-500 hover:text-red-700 text-sm"
                                   onClick={() => onDeleteClass(classItem.id!, classItem.name)}
                                 >
@@ -290,6 +314,22 @@ export default function ClassList({ classes, currentClassId, onSelectClass, onDe
             </div>
           </div>
         </div>
+      )}
+
+      {isAddClassModalOpen && (
+        <Modal
+          isOpen={isAddClassModalOpen}
+          onClose={() => setIsAddClassModalOpen(false)}
+          title="Add New Class"
+        >
+          <AddClassForm
+            onSubmit={(className, classEmoji) => {
+              handleAddClass(className, classEmoji);
+              setIsAddClassModalOpen(false);
+            }}
+            onCancel={() => setIsAddClassModalOpen(false)}
+          />
+        </Modal>
       )}
     </div>
   );

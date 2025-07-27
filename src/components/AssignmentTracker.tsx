@@ -62,11 +62,11 @@ export default function AssignmentTracker() {
     loadAssignmentsForClass();
   }, [currentClassId, db]);
 
-  const handleAddClass = async (className: string) => {
+  const handleAddClass = async (className: string, classEmoji: string) => {
     if (!db) return;
 
     try {
-      await db.addClass(className);
+      await db.addClass(className, classEmoji);
       const classList = await db.getAllClasses();
       setClasses(classList);
       setIsAddClassModalOpen(false);
@@ -195,6 +195,8 @@ export default function AssignmentTracker() {
     <div className="flex h-screen bg-gray-50">
       <ClassList 
         classes={classes} 
+        setClasses={setClasses}
+        db={db}
         currentClassId={currentClassId} 
         onSelectClass={handleSelectClass} 
         onDeleteClass={handleDeleteClass} 

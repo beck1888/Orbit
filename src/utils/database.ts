@@ -2,6 +2,7 @@
 export interface Class {
   id?: number;
   name: string;
+  emoji: string; // Added emoji field
   createdAt: string;
 }
 
@@ -53,7 +54,7 @@ export class AssignmentDatabase {
     });
   }
 
-  async addClass(className: string): Promise<number> {
+  async addClass(className: string, classEmoji: string): Promise<number> {
     if (!this.db) throw new Error('Database not initialized');
     
     const transaction = this.db.transaction(['classes'], 'readwrite');
@@ -61,6 +62,7 @@ export class AssignmentDatabase {
     
     const classData: Omit<Class, 'id'> = {
       name: className,
+      emoji: classEmoji, // Store emoji in the database
       createdAt: new Date().toISOString()
     };
 
