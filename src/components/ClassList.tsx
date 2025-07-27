@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Class } from '@/utils/database';
@@ -20,7 +19,10 @@ export default function ClassList({ classes, currentClassId, onSelectClass, onDe
   return (
     <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
       <div className="p-5 border-b border-gray-200">
-        <h1 className="text-2xl font-semibold mb-4">Classes</h1>
+        {/* Logo */}
+        <div className="flex items-center justify-center h-full">
+          <a href="" className="text-4xl font-bold mb-2 hover:underline">Orbit App</a>
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto">
         {classes.length === 0 ? (
