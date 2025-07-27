@@ -41,9 +41,12 @@ export default function HistoryView({ db }: HistoryViewProps) {
 
     try {
       await db.updateAssignment(assignmentId, { completed });
-      // Reload the completed assignments to reflect the change
+      // Reload both completed and active assignments to reflect the change
       const updatedCompleted = await db.getAllCompletedAssignments();
+      const updatedActive = await db.getAllIncompleteAssignments();
       setCompletedAssignments(updatedCompleted);
+      // Optionally, update active tasks if needed
+      console.log('Active tasks:', updatedActive);
     } catch (error) {
       console.error('Failed to update assignment:', error);
     }
