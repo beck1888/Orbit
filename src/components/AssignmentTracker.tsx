@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { AssignmentDatabase, Class, Assignment } from '@/utils/database';
 import Modal from '@/components/Modal';
-import AddClassForm from '@/components/AddClassForm';
 import AddAssignmentForm from '@/components/AddAssignmentForm';
 import EditAssignmentForm from '@/components/EditAssignmentForm';
 import ClassList from './ClassList';
@@ -15,7 +14,6 @@ export default function AssignmentTracker() {
   const [classes, setClasses] = useState<Class[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [currentClassId, setCurrentClassId] = useState<number | null>(null);
-  const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   const [isAddAssignmentModalOpen, setIsAddAssignmentModalOpen] = useState(false);
   const [isEditAssignmentModalOpen, setIsEditAssignmentModalOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
@@ -60,19 +58,6 @@ export default function AssignmentTracker() {
     loadAssignmentsForClass();
   }, [currentClassId, db]);
 
-  const handleAddClass = async (className: string, classEmoji: string) => {
-    if (!db) return;
-
-    try {
-      await db.addClass(className, classEmoji);
-      const classList = await db.getAllClasses();
-      setClasses(classList);
-      setIsAddClassModalOpen(false);
-    } catch (error) {
-      console.error('Failed to add class:', error);
-      alert('Failed to add class. Please try again.');
-    }
-  };
 
   const handleDeleteClass = async (classId: number, className: string) => {
     if (!db) return;
@@ -214,16 +199,6 @@ export default function AssignmentTracker() {
         )}
       </div>
 
-      <Modal
-        isOpen={isAddClassModalOpen}
-        onClose={() => setIsAddClassModalOpen(false)}
-        title="Add New Class"
-      >
-        <AddClassForm
-          onSubmit={handleAddClass}
-          onCancel={() => setIsAddClassModalOpen(false)}
-        />
-      </Modal>
 
       <Modal
         isOpen={isAddAssignmentModalOpen}

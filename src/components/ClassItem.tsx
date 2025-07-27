@@ -18,7 +18,7 @@ export default function ClassItem({ classItem, isActive, onSelect }: ClassItemPr
       }`}
       onClick={onSelect}
     >
-      <span className="text-gray-700 flex items-center">
+      <span className={`flex items-center ${isActive ? 'text-white' : 'text-gray-700'}`}>
         <span className="mr-2">{classItem.emoji}</span>
         {classItem.name}
       </span>
