@@ -3,6 +3,7 @@
 import { Assignment } from '@/utils/database';
 import { useEffect } from 'react';
 import Image from 'next/image';
+import confetti from 'canvas-confetti';
 
 interface AssignmentCardProps {
   assignment: Assignment;
@@ -32,6 +33,19 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
     // Removed audio play logic
   }, [assignment.completed]);
 
+  const handleCheckboxChange = (e: React.MouseEvent<HTMLInputElement>, assignmentId: number) => {
+    onToggleComplete(assignmentId, (e.target as HTMLInputElement).checked);
+
+    if ((e.target as HTMLInputElement).checked) {
+      confetti({
+        particleCount: 50, // Reduced particle count
+        spread: 50, // Reduced spread
+        origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
+        decay: 0.8, // Faster decay
+      });
+    }
+  };
+
   return (
     <div className={`bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow group ${
       assignment.completed ? 'opacity-70 bg-gray-50' : ''
@@ -43,6 +57,7 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
               type="checkbox"
               checked={assignment.completed}
               onChange={(e) => onToggleComplete(assignment.id!, e.target.checked)}
+              onClick={(e) => handleCheckboxChange(e, assignment.id!)}
               className="transform scale-110 flex-shrink-0"
             />
           </div>
