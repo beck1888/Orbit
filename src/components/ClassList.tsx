@@ -4,6 +4,7 @@ import { Class, AssignmentDatabase } from '@/utils/database';
 import ClassItem from './ClassItem';
 import Modal from './Modal';
 import AddClassForm from './AddClassForm';
+import HistoryView from './HistoryView';
 
 interface ClassListProps {
   classes: Class[];
@@ -114,6 +115,18 @@ export default function ClassList({ classes, setClasses, db, currentClassId, onS
                   <div className="mb-2">
                     <button 
                       className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                        selectedManageSection === 'history' 
+                          ? 'bg-blue-100 text-blue-700' 
+                          : 'hover:bg-gray-100 text-gray-700'
+                      }`}
+                      onClick={() => setSelectedManageSection('history')}
+                    >
+                      History
+                    </button>
+                  </div>
+                  <div className="mb-2">
+                    <button 
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                         selectedManageSection === 'data-storage' 
                           ? 'bg-blue-100 text-blue-700' 
                           : 'hover:bg-gray-100 text-gray-700'
@@ -205,10 +218,6 @@ export default function ClassList({ classes, setClasses, db, currentClassId, onS
                         <div className="space-y-3">
                           <label className="flex items-center">
                             <input type="checkbox" className="mr-2" />
-                            <span className="text-gray-700">Show completed assignments</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input type="checkbox" className="mr-2" />
                             <span className="text-gray-700">Dark mode</span>
                           </label>
                           <label className="flex items-center">
@@ -233,6 +242,19 @@ export default function ClassList({ classes, setClasses, db, currentClassId, onS
                         </div>
                       </div>
                     </div>
+                  </div>
+                </>
+              )}
+
+              {selectedManageSection === 'history' && (
+                <>
+                  <div className="bg-white border-b border-gray-200 p-6">
+                    <h2 className="text-xl font-semibold text-gray-800">Task History</h2>
+                    <p className="text-gray-600 mt-1">View and manage your completed assignments</p>
+                  </div>
+                  
+                  <div className="flex-1 p-6 overflow-y-auto">
+                    <HistoryView db={db} />
                   </div>
                 </>
               )}

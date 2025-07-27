@@ -247,4 +247,29 @@ export class AssignmentDatabase {
       request.onerror = () => reject(request.error);
     });
   }
+
+  async getAllCompletedAssignments(): Promise<Assignment[]> {
+    if (!this.db) throw new Error('Database not initialized');
+    
+    const transaction = this.db.transaction(['assignments'], 'readonly');
+    const store = transaction.objectStore('assignments');
+
+    return new Promise((resolve, reject) => {
+      const request = store.getAll();
+      request.onsuccess = () => {
+        const assignments = request.result;
+        const completed = assignments
+          .filter(assignment => assignment.completed)
+          .sort((a, b) => {
+            // Sort by completion date, most recent first
+            if (!a.completedAt && !b.completedAt) return 0;
+            if (!a.completedAt) return 1;
+            if (!b.completedAt) return -1;
+            return new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime();
+          });
+        resolve(completed);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
 }
