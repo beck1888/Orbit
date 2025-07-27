@@ -30,6 +30,14 @@ body {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Line clamp utility for text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* Better focus styles */
 input:focus,
 textarea:focus,
