@@ -21,8 +21,6 @@ export default function EditAssignmentForm({ assignment, onSubmit, onCancel }: E
   const [type, setType] = useState(assignment.type);
   const [dateValue, setDateValue] = useState('');
   const [timeValue, setTimeValue] = useState('');
-  const [dateFormatted, setDateFormatted] = useState('');
-  const [timeFormatted, setTimeFormatted] = useState('');
   const [isoDate, setIsoDate] = useState('');
   const [timeISO, setTimeISO] = useState('');
 
@@ -34,11 +32,15 @@ export default function EditAssignmentForm({ assignment, onSubmit, onCancel }: E
     if (assignment.dueDate) {
       const dueDate = new Date(assignment.dueDate);
       if (!isNaN(dueDate.getTime())) {
-        // Format the date for display
-        const month = dueDate.getMonth() + 1;
+        // Format the date for display (Month name, day, year)
+        const monthNames = [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        const month = monthNames[dueDate.getMonth()];
         const day = dueDate.getDate();
         const year = dueDate.getFullYear();
-        setDateFormatted(`${month}/${day}/${year}`);
+        setDateValue(`${month} ${day}, ${year}`);
         setIsoDate(dueDate.toISOString().split('T')[0]);
 
         // Format the time for display
@@ -48,7 +50,7 @@ export default function EditAssignmentForm({ assignment, onSubmit, onCancel }: E
           const period = hours >= 12 ? 'PM' : 'AM';
           const displayHours = hours % 12 || 12;
           const displayMinutes = minutes.toString().padStart(2, '0');
-          setTimeFormatted(`${displayHours}:${displayMinutes} ${period}`);
+          setTimeValue(`${displayHours}:${displayMinutes} ${period}`);
           setTimeISO(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
         }
       }
@@ -60,7 +62,7 @@ export default function EditAssignmentForm({ assignment, onSubmit, onCancel }: E
     
     const result = formatDateInput(dateValue);
     if (result.success && result.formatted && result.isoDate) {
-      setDateFormatted(result.formatted);
+      setDateValue(result.formatted);
       setIsoDate(result.isoDate);
       if (dateInputRef.current) {
         dateInputRef.current.style.borderColor = '#10b981';
@@ -91,7 +93,7 @@ export default function EditAssignmentForm({ assignment, onSubmit, onCancel }: E
     
     const result = formatTimeInput(timeValue);
     if (result.success && result.formatted && result.time) {
-      setTimeFormatted(result.formatted);
+      setTimeValue(result.formatted);
       setTimeISO(result.time);
       if (timeInputRef.current) {
         timeInputRef.current.style.borderColor = '#10b981';
@@ -192,16 +194,15 @@ export default function EditAssignmentForm({ assignment, onSubmit, onCancel }: E
             ref={dateInputRef}
             type="text"
             id="assignment-date"
-            value={dateFormatted || dateValue}
+            value={dateValue}
             onChange={(e) => {
               setDateValue(e.target.value);
               if (!e.target.value.trim()) {
-                setDateFormatted('');
                 setIsoDate('');
               }
             }}
             onBlur={handleDateBlur}
-            placeholder="e.g., 4/24 or April 24"
+            placeholder="e.g., April 24 or 4/24"
             className="w-full p-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
         </div>
@@ -214,11 +215,10 @@ export default function EditAssignmentForm({ assignment, onSubmit, onCancel }: E
             ref={timeInputRef}
             type="text"
             id="assignment-time"
-            value={timeFormatted || timeValue}
+            value={timeValue}
             onChange={(e) => {
               setTimeValue(e.target.value);
               if (!e.target.value.trim()) {
-                setTimeFormatted('');
                 setTimeISO('');
               }
             }}
