@@ -15,12 +15,13 @@ interface AssignmentFormProps {
   onCancel: () => void;
   initialData?: Assignment;
   submitButtonText: string;
+  defaultType?: string;
 }
 
-export default function AssignmentForm({ onSubmit, onCancel, initialData, submitButtonText }: AssignmentFormProps) {
+export default function AssignmentForm({ onSubmit, onCancel, initialData, submitButtonText, defaultType }: AssignmentFormProps) {
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
-  const [type, setType] = useState(initialData?.type || 'Homework');
+  const [type, setType] = useState(initialData?.type || defaultType || 'Homework');
   const [dateValue, setDateValue] = useState('');
   const [timeValue, setTimeValue] = useState('');
   const [isoDate, setIsoDate] = useState('');
@@ -150,7 +151,7 @@ export default function AssignmentForm({ onSubmit, onCancel, initialData, submit
     if (!initialData) {
         setTitle('');
         setDescription('');
-        setType('Homework');
+        setType(defaultType || 'Homework');
         setDateValue('');
         setTimeValue('');
         setIsoDate('');

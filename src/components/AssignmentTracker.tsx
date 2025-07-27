@@ -20,6 +20,7 @@ export default function AssignmentTracker() {
   const [isAddAssignmentModalOpen, setIsAddAssignmentModalOpen] = useState(false);
   const [isEditAssignmentModalOpen, setIsEditAssignmentModalOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
+  const [addingAssignmentType, setAddingAssignmentType] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -116,10 +117,16 @@ export default function AssignmentTracker() {
       const assignmentList = await db.getAssignmentsByClass(currentClassId);
       setAssignments(assignmentList);
       setIsAddAssignmentModalOpen(false);
+      setAddingAssignmentType('');
     } catch (error) {
       console.error('Failed to add assignment:', error);
       alert('Failed to add assignment. Please try again.');
     }
+  };
+
+  const handleOpenAddAssignmentModal = (type?: string) => {
+    setAddingAssignmentType(type || '');
+    setIsAddAssignmentModalOpen(true);
   };
 
   const handleToggleAssignmentCompletion = async (assignmentId: number, completed: boolean) => {
@@ -196,8 +203,6 @@ export default function AssignmentTracker() {
       <div className="flex-1 flex flex-col">
         <Header 
           currentClassName={currentClassName} 
-          currentClassId={currentClassId} 
-          onAddAssignment={() => setIsAddAssignmentModalOpen(true)} 
         />
 
         {!currentClassId ? (
@@ -209,11 +214,10 @@ export default function AssignmentTracker() {
         ) : (
           <AssignmentList 
             assignments={assignments} 
-            currentClassName={currentClassName}
             onToggleAssignmentCompletion={handleToggleAssignmentCompletion} 
             onDeleteAssignment={handleDeleteAssignment} 
             onEditAssignment={handleEditAssignment} 
-            onAddAssignment={() => setIsAddAssignmentModalOpen(true)}
+            onAddAssignment={handleOpenAddAssignmentModal}
           />
         )}
       </div>
@@ -231,12 +235,19 @@ export default function AssignmentTracker() {
 
       <Modal
         isOpen={isAddAssignmentModalOpen}
-        onClose={() => setIsAddAssignmentModalOpen(false)}
+        onClose={() => {
+          setIsAddAssignmentModalOpen(false);
+          setAddingAssignmentType('');
+        }}
         title="Add New Assignment"
       >
         <AddAssignmentForm
           onSubmit={handleAddAssignment}
-          onCancel={() => setIsAddAssignmentModalOpen(false)}
+          onCancel={() => {
+            setIsAddAssignmentModalOpen(false);
+            setAddingAssignmentType('');
+          }}
+          defaultType={addingAssignmentType}
         />
       </Modal>
 

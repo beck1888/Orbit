@@ -10,14 +10,16 @@ interface AddAssignmentFormProps {
     dueDate?: string;
   }) => void;
   onCancel: () => void;
+  defaultType?: string;
 }
 
-export default function AddAssignmentForm({ onSubmit, onCancel }: AddAssignmentFormProps) {
+export default function AddAssignmentForm({ onSubmit, onCancel, defaultType }: AddAssignmentFormProps) {
   return (
     <AssignmentForm
       onSubmit={onSubmit}
       onCancel={onCancel}
       submitButtonText="Add Assignment"
+      defaultType={defaultType}
     />
   );
 }
