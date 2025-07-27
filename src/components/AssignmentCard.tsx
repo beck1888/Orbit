@@ -75,10 +75,23 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
         </p>
       )}
 
-      <div className={`text-xs font-medium ${
-        dueDateStatus ? getDueDateColor(dueDateStatus.class) : 'text-gray-400'
-      }`}>
-        {dueDateStatus ? dueDateStatus.text : 'No due date'}
+      <div className="flex justify-between items-center">
+        <div className={`text-xs font-medium ${
+          dueDateStatus ? getDueDateColor(dueDateStatus.class) : 'text-gray-400'
+        }`}>
+          {dueDateStatus ? dueDateStatus.text : 'No due date'}
+        </div>
+        
+        {assignment.completed && assignment.completedAt && (
+          <div className="text-xs text-gray-500">
+            Completed {new Date(assignment.completedAt).toLocaleDateString('en-US', { 
+              month: 'short', 
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

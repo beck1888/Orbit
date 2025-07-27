@@ -15,12 +15,13 @@ export interface Assignment {
   dueDate?: string;
   completed: boolean;
   createdAt: string;
+  completedAt?: string;
 }
 
 export class AssignmentDatabase {
   private db: IDBDatabase | null = null;
   private readonly dbName = 'AssignmentTracker';
-  private readonly version = 1;
+  private readonly version = 2;
 
   async init(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
@@ -168,6 +169,15 @@ export class AssignmentDatabase {
       getRequest.onsuccess = () => {
         const assignment = getRequest.result;
         if (assignment) {
+          // If the completed status is changing to true, set completedAt timestamp
+          if (updates.completed === true && !assignment.completed) {
+            updates.completedAt = new Date().toISOString();
+          }
+          // If the completed status is changing to false, remove completedAt timestamp
+          else if (updates.completed === false && assignment.completed) {
+            updates.completedAt = undefined;
+          }
+          
           Object.assign(assignment, updates);
           const updateRequest = store.put(assignment);
           updateRequest.onsuccess = () => resolve(assignment);
