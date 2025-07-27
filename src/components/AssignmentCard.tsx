@@ -43,6 +43,9 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
         origin: { x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight },
         decay: 0.8, // Faster decay
       });
+
+      const audio = new Audio('/sounds/task-done.mp3');
+      audio.play();
     }
   };
 
