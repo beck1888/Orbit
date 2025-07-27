@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import { AssignmentDatabase, Class, Assignment } from '@/utils/database';
 import Modal from '@/components/Modal';
-import ClassItem from '@/components/ClassItem';
-import AssignmentCard from '@/components/AssignmentCard';
 import AddClassForm from '@/components/AddClassForm';
 import AddAssignmentForm from '@/components/AddAssignmentForm';
 import EditAssignmentForm from '@/components/EditAssignmentForm';
+import ClassList from './ClassList';
+import AssignmentList from './AssignmentList';
+import Header from './Header';
 
 export default function AssignmentTracker() {
   const [db, setDb] = useState<AssignmentDatabase | null>(null);
@@ -28,7 +29,6 @@ export default function AssignmentTracker() {
         await database.init();
         setDb(database);
         
-        // Load classes directly here to avoid dependency issues
         try {
           const classList = await database.getAllClasses();
           setClasses(classList);
@@ -60,27 +60,11 @@ export default function AssignmentTracker() {
     loadAssignmentsForClass();
   }, [currentClassId, db]);
 
-  useEffect(() => {
-    const loadAssignmentsForClass = async () => {
-      if (!db || !currentClassId) return;
-
-      try {
-        const assignmentList = await db.getAssignmentsByClass(currentClassId);
-        setAssignments(assignmentList);
-      } catch (error) {
-        console.error('Failed to load assignments:', error);
-      }
-    };
-
-    loadAssignmentsForClass();
-  }, [currentClassId, db]);
-
   const handleAddClass = async (className: string) => {
     if (!db) return;
 
     try {
       await db.addClass(className);
-      // Reload classes directly
       const classList = await db.getAllClasses();
       setClasses(classList);
       setIsAddClassModalOpen(false);
@@ -96,7 +80,6 @@ export default function AssignmentTracker() {
     if (confirm(`Are you sure you want to delete "${className}" and all its assignments?`)) {
       try {
         await db.deleteClass(classId);
-        // Reload classes directly
         const classList = await db.getAllClasses();
         setClasses(classList);
         
@@ -130,7 +113,6 @@ export default function AssignmentTracker() {
         classId: currentClassId,
         ...assignmentData
       });
-      // Reload assignments directly
       const assignmentList = await db.getAssignmentsByClass(currentClassId);
       setAssignments(assignmentList);
       setIsAddAssignmentModalOpen(false);
@@ -145,7 +127,6 @@ export default function AssignmentTracker() {
 
     try {
       await db.updateAssignment(assignmentId, { completed });
-      // Reload assignments directly
       const assignmentList = await db.getAssignmentsByClass(currentClassId);
       setAssignments(assignmentList);
     } catch (error) {
@@ -160,7 +141,6 @@ export default function AssignmentTracker() {
     if (confirm('Are you sure you want to delete this assignment?')) {
       try {
         await db.deleteAssignment(assignmentId);
-        // Reload assignments directly
         const assignmentList = await db.getAssignmentsByClass(currentClassId);
         setAssignments(assignmentList);
       } catch (error) {
@@ -185,7 +165,6 @@ export default function AssignmentTracker() {
 
     try {
       await db.updateAssignment(editingAssignment.id!, assignmentData);
-      // Reload assignments directly
       const assignmentList = await db.getAssignmentsByClass(currentClassId);
       setAssignments(assignmentList);
       setIsEditAssignmentModalOpen(false);
@@ -206,89 +185,39 @@ export default function AssignmentTracker() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-5 border-b border-gray-200">
-          <h1 className="text-2xl font-semibold mb-4">Classes</h1>
-          <button
-            onClick={() => setIsAddClassModalOpen(true)}
-            className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors"
-          >
-            + Add Class
-          </button>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto">
-          {classes.length === 0 ? (
-            <div className="p-5 text-center text-gray-500">
-              <p>No classes yet. Add your first class to get started!</p>
-            </div>
-          ) : (
-            classes.map((classItem) => (
-              <ClassItem
-                key={classItem.id}
-                classItem={classItem}
-                isActive={currentClassId === classItem.id}
-                onSelect={() => handleSelectClass(classItem.id!, classItem.name)}
-                onDelete={() => handleDeleteClass(classItem.id!, classItem.name)}
-              />
-            ))
-          )}
-        </div>
-      </div>
+      <ClassList 
+        classes={classes} 
+        currentClassId={currentClassId} 
+        onSelectClass={handleSelectClass} 
+        onDeleteClass={handleDeleteClass} 
+        onAddClass={() => setIsAddClassModalOpen(true)} 
+      />
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <div className="p-8 border-b border-gray-200 bg-white flex justify-between items-center">
-          <h2 className="text-3xl font-semibold">
-            {currentClassName || 'Select a class to view assignments'}
-          </h2>
-          {currentClassId && (
-            <button
-              onClick={() => setIsAddAssignmentModalOpen(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors"
-            >
-              + Add Assignment
-            </button>
-          )}
-        </div>
+        <Header 
+          currentClassName={currentClassName} 
+          currentClassId={currentClassId} 
+          onAddAssignment={() => setIsAddAssignmentModalOpen(true)} 
+        />
 
-        <div className="flex-1 p-8 overflow-y-auto">
-          {!currentClassId ? (
-            <div className="text-center mt-24">
-              <p className="text-lg text-gray-500">
-                Select a class from the sidebar to view assignments, or add a new class to get started.
-              </p>
-            </div>
-          ) : assignments.length === 0 ? (
-            <div className="text-center mt-24">
-              <p className="text-lg text-gray-500 mb-5">
-                No assignments yet for {currentClassName}.
-              </p>
-              <button
-                onClick={() => setIsAddAssignmentModalOpen(true)}
-                className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors"
-              >
-                Add Your First Assignment
-              </button>
-            </div>
-          ) : (
-            <div className="max-w-4xl">
-              {assignments.map((assignment) => (
-                <AssignmentCard
-                  key={assignment.id}
-                  assignment={assignment}
-                  onToggleComplete={handleToggleAssignmentCompletion}
-                  onDelete={handleDeleteAssignment}
-                  onEdit={handleEditAssignment}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        {!currentClassId ? (
+          <div className="text-center mt-24">
+            <p className="text-lg text-gray-500">
+              Select a class from the sidebar to view assignments, or add a new class to get started.
+            </p>
+          </div>
+        ) : (
+          <AssignmentList 
+            assignments={assignments} 
+            currentClassName={currentClassName}
+            onToggleAssignmentCompletion={handleToggleAssignmentCompletion} 
+            onDeleteAssignment={handleDeleteAssignment} 
+            onEditAssignment={handleEditAssignment} 
+            onAddAssignment={() => setIsAddAssignmentModalOpen(true)}
+          />
+        )}
       </div>
 
-      {/* Modals */}
       <Modal
         isOpen={isAddClassModalOpen}
         onClose={() => setIsAddClassModalOpen(false)}
