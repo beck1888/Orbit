@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { AssignmentDatabase, Assignment, Class } from '@/utils/database';
 
 interface DashboardProps {
@@ -148,10 +149,8 @@ export default function Dashboard({ db }: DashboardProps) {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-orange-100">
-                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
+              <div className="p-3 rounded-full bg-red-100 text-red-700">
+                <Image src="/icons/alert.svg" alt="Alert Icon" width={24} height={24} />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Overdue</p>
@@ -159,15 +158,14 @@ export default function Dashboard({ db }: DashboardProps) {
               </div>
             </div>
           </div>
+
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-red-100">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <div className="p-3 rounded-full bg-green-100 text-green-700">
+                <Image src="/icons/sun.svg" alt="Sun Icon" width={24} height={24} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Due Today</p>
+                <p className="text-sm font-medium text-gray-600">Today</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.tasksToday}</p>
               </div>
             </div>
@@ -175,13 +173,11 @@ export default function Dashboard({ db }: DashboardProps) {
 
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-yellow-100">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+              <div className="p-3 rounded-full bg-yellow-100 text-yellow-700">
+                <Image src="/icons/clock.svg" alt="Clock Icon" width={24} height={24} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Due Tomorrow</p>
+                <p className="text-sm font-medium text-gray-600">Tomorrow</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.tasksTomorrow}</p>
               </div>
             </div>
@@ -189,28 +185,24 @@ export default function Dashboard({ db }: DashboardProps) {
 
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
+              <div className="p-3 rounded-full bg-purple-100 text-purple-700">
+                <Image src="/icons/question.svg" alt="Question Icon" width={24} height={24} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total To-Dos</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalTasks}</p>
+                <p className="text-sm font-medium text-gray-600">No Date</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.tasksWithoutDates.length}</p>
               </div>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-6">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-100">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <div className="p-3 rounded-full bg-blue-100 text-blue-700" style={{ color: '#1D4ED8' }}>
+                <Image src="/icons/check.svg" alt="Check Icon" width={24} height={24} style={{ color: '#1D4ED8' }} />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">No Due Date</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.tasksWithoutDates.length}</p>
+                <p className="text-sm font-medium text-gray-600">To-Do</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalTasks}</p>
               </div>
             </div>
           </div>
@@ -312,13 +304,13 @@ export default function Dashboard({ db }: DashboardProps) {
                       )}
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span className="flex items-center gap-1">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0a2 2 0 01-2-2v-1a2 2 0 00-2-2H9a2 2 0 00-2 2v1a2 2 0 01-2 2m14 0V9a2 2 0 00-2-2M5 21V9a2 2 0 012-2h4" />
                           </svg>
                           {getClassName(task.classId)}
                         </span>
                         <span className="flex items-center gap-1">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           {task.dueDate ? formatDueDate(task.dueDate) : 'No due date'}
