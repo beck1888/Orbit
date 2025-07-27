@@ -2,6 +2,7 @@
 
 import { Assignment } from '@/utils/database';
 import { getDueDateStatus } from '@/utils/dateTimeHelpers';
+import { useEffect } from 'react';
 
 interface AssignmentCardProps {
   assignment: Assignment;
@@ -25,6 +26,13 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
         return 'text-blue-500';
     }
   };
+
+  useEffect(() => {
+    if (assignment.completed) {
+      const audio = new Audio('/sounds/click.mp3');
+      audio.play();
+    }
+  }, [assignment.completed]);
 
   return (
     <div className={`bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow ${
