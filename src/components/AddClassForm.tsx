@@ -15,9 +15,23 @@ export default function AddClassForm({ onSubmit, onCancel }: AddClassFormProps) 
   const [className, setClassName] = useState('');
   const [classEmoji, setClassEmoji] = useState('');
   const emojiOptions = [
-    '📚', '✏️', '🧮', '🧬', '🎨',
-    '🌎', '🧑‍🏫', '🖥️', '🎵', '🧪',
-    '📖', '📝', '🔬', '🏀', '🎭'
+    '📚', // Study grind / readings never end
+    '💻', // Programming / tech / CS
+    '🧪', // Lab class / science hell
+    '🧠', // Mental overload / psych major energy
+    '📈', // Business / stats / climbing the GPA curve
+
+    '📝', // Essays / exams / note-taking marathon
+    '📅', // Schedule-packed / planner girlie
+    '☕',  // Coffee-fueled 3 AM homework sesh
+    '💤', // Sleep-deprived / nap between lectures
+    '🔥', // Hustle / stress / this class is on fire
+
+    '💀', // Existential dread / “I’m failing”
+    '🤡', // Clownery / "why did I take this class"
+    '😭', // Crying in the library
+    '🤖', // Emotionless grindset / auto-pilot mode
+    '🧘', // Trying to stay zen / self-care attempt
   ];
 
   const handleEmojiClick = (emoji: string) => {
