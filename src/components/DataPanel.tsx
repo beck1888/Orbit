@@ -1,12 +1,31 @@
 'use client';
 
 import { Class } from '@/utils/database';
+import { useEffect, useState } from 'react';
+import { AssignmentDatabase, Assignment } from '@/utils/database';
 
 interface DataPanelProps {
   classes: Class[];
 }
 
 export default function DataPanel({ classes }: DataPanelProps) {
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      const db = new AssignmentDatabase();
+      await db.init();
+      // Get all assignments from the assignments store
+      const allAssignments = await db.getAllIncompleteAssignments();
+      const completedAssignments = await db.getAllCompletedAssignments();
+      setAssignments([...allAssignments, ...completedAssignments]);
+    };
+    fetchAssignments();
+  }, []);
+
+  const dbItems = assignments.length;
+  const dbSizeMB = assignments.length > 0 ? (JSON.stringify(assignments).length / 1024 / 1024).toFixed(2) : '0.00';
+
   return (
     <>
       <div className="bg-white border-b border-gray-200 p-6">
@@ -21,8 +40,8 @@ export default function DataPanel({ classes }: DataPanelProps) {
             <h3 className="text-lg font-medium text-gray-800 mb-4">Storage Information</h3>
             <div className="space-y-2">
               <p className="text-gray-600">Classes: {classes.length}</p>
-              <p className="text-gray-600">Total assignments: Coming soon</p>
-              <p className="text-gray-600">Database size: Coming soon</p>
+              <p className="text-gray-600">DB Items: {dbItems}</p>
+              <p className="text-gray-600">Database size: {dbSizeMB} MB</p>
             </div>
           </div>
 
