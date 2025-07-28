@@ -24,7 +24,13 @@ export default function DataPanel({ classes }: DataPanelProps) {
   }, []);
 
   const dbItems = assignments.length;
-  const dbSizeMB = assignments.length > 0 ? (JSON.stringify(assignments).length / 1024 / 1024).toFixed(2) : '0.00';
+  const dbSizeBytes = assignments.length > 0 ? JSON.stringify(assignments).length : 0;
+  let dbSizeDisplay = '0.00 MB';
+  if (dbSizeBytes < 10240) {
+    dbSizeDisplay = (dbSizeBytes / 1024).toFixed(2) + ' KB';
+  } else {
+    dbSizeDisplay = (dbSizeBytes / 1024 / 1024).toFixed(2) + ' MB';
+  }
 
   return (
     <>
@@ -41,7 +47,7 @@ export default function DataPanel({ classes }: DataPanelProps) {
             <div className="space-y-2">
               <p className="text-gray-600">Classes: {classes.length}</p>
               <p className="text-gray-600">DB Items: {dbItems}</p>
-              <p className="text-gray-600">Database size: {dbSizeMB} MB</p>
+              <p className="text-gray-600">Database size: {dbSizeDisplay}</p>
             </div>
           </div>
 
