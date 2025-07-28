@@ -8,28 +8,26 @@ import AddClassForm from './AddClassForm';
 
 interface ClassManagementPanelProps {
   classes: Class[];
-  setClasses: React.Dispatch<React.SetStateAction<Class[]>>;
+  onClassesChange: () => void;
   db: AssignmentDatabase | null;
-  // Remove onDeleteClass from props, will handle locally
 }
 
 export default function ClassManagementPanel({ 
   classes, 
-  setClasses, 
+  onClassesChange, 
   db
-}: Omit<ClassManagementPanelProps, 'onDeleteClass'>) {
+}: ClassManagementPanelProps) {
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   
     // State for delete confirmation popup
     const [deletePopUpState, setDeletePopUpState] = useState<{ isOpen: boolean; classId?: number; className?: string }>({ isOpen: false });
 
-  const handleAddClass = async (className: string, classEmoji: string) => {
+  const handleAddClass = async (className: string, classEmoji: string, classSlug: string) => {
     if (!db) return;
 
     try {
-      await db.addClass(className, classEmoji);
-      const updatedClasses = await db.getAllClasses();
-      setClasses(updatedClasses);
+      await db.addClass(className, classEmoji, classSlug);
+      onClassesChange();
       setIsAddClassModalOpen(false);
     } catch (error) {
       console.error('Failed to add class:', error);
@@ -91,11 +89,9 @@ export default function ClassManagementPanel({
           title="Add New Class"
         >
           <AddClassForm
-            onSubmit={(className, classEmoji) => {
-              handleAddClass(className, classEmoji);
-              setIsAddClassModalOpen(false);
-            }}
+            onSubmit={handleAddClass}
             onCancel={() => setIsAddClassModalOpen(false)}
+            db={db}
           />
         </Modal>
       )}
@@ -112,8 +108,7 @@ export default function ClassManagementPanel({
               if (btn === 'primary' && deletePopUpState.classId !== undefined && db) {
                 try {
                   await db.deleteClass(deletePopUpState.classId);
-                  const updatedClasses = await db.getAllClasses();
-                  setClasses(updatedClasses);
+                  onClassesChange();
                 } catch (error) {
                   console.error('Failed to delete class:', error);
                   // Optionally show a custom error popup here

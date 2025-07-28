@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { AssignmentDatabase, Assignment, Class } from '@/utils/database';
 
@@ -22,6 +23,7 @@ interface DashboardStats {
 }
 
 export default function Dashboard({ db }: DashboardProps) {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     tasksToday: 0,
     tasksTomorrow: 0,
@@ -121,6 +123,11 @@ export default function Dashboard({ db }: DashboardProps) {
   const getClassName = (classId: number): string => {
     const foundClass = classes.find(c => c.id === classId);
     return foundClass ? foundClass.name : 'Unknown Class';
+  };
+
+  const getClassSlug = (classId: number): string => {
+    const foundClass = classes.find(c => c.id === classId);
+    return foundClass ? foundClass.slug : '';
   };
 
   const formatDueDate = (dateString: string): string => {
@@ -303,12 +310,18 @@ export default function Dashboard({ db }: DashboardProps) {
                         <p className="text-gray-600 text-sm mb-2">{task.description}</p>
                       )}
                       <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span className="flex items-center gap-1">
+                        <button 
+                          onClick={() => {
+                            const slug = getClassSlug(task.classId);
+                            if (slug) router.push(`/${slug}`);
+                          }}
+                          className="flex items-center gap-1 hover:text-blue-600 transition-colors"
+                        >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0a2 2 0 01-2-2v-1a2 2 0 00-2-2H9a2 2 0 00-2 2v1a2 2 0 01-2 2m14 0V9a2 2 0 00-2-2M5 21V9a2 2 0 012-2h4" />
                           </svg>
                           {getClassName(task.classId)}
-                        </span>
+                        </button>
                         <span className="flex items-center gap-1">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

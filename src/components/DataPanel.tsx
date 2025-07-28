@@ -116,7 +116,8 @@ export default function DataPanel({ classes }: DataPanelProps) {
                     }
                     // Add new classes
                     for (const cls of data.classes) {
-                      await db.addClass(cls.name, cls.emoji);
+                      const slug = cls.slug || cls.name.toLowerCase().replace(/\s+/g, '-');
+                      await db.addClass(cls.name, cls.emoji, slug);
                     }
                     // Add new assignments
                     for (const assignment of data.assignments) {

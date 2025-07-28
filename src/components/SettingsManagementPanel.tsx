@@ -26,6 +26,16 @@ export default function SettingsManagementPanel({
 }: SettingsManagementPanelProps) {
   const [selectedSection, setSelectedSection] = useState('history');
 
+  const loadClasses = async () => {
+    if (!db) return;
+    try {
+      const classList = await db.getAllClasses();
+      setClasses(classList);
+    } catch (error) {
+      console.error('Failed to load classes:', error);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -41,7 +51,7 @@ export default function SettingsManagementPanel({
           {selectedSection === 'class-management' && (
             <ClassManagementPanel
               classes={classes}
-              setClasses={setClasses}
+              onClassesChange={loadClasses}
               db={db}
             />
           )}

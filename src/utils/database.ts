@@ -3,6 +3,7 @@ export interface Class {
   id?: number;
   name: string;
   emoji: string; // Added emoji field
+  slug: string; // Added slug field for routing
   createdAt: string;
 }
 
@@ -21,7 +22,7 @@ export interface Assignment {
 export class AssignmentDatabase {
   private db: IDBDatabase | null = null;
   private readonly dbName = 'AssignmentTracker';
-  private readonly version = 2;
+  private readonly version = 3;
 
   async init(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
@@ -43,6 +44,13 @@ export class AssignmentDatabase {
         if (!db.objectStoreNames.contains('classes')) {
           const classStore = db.createObjectStore('classes', { keyPath: 'id', autoIncrement: true });
           classStore.createIndex('name', 'name', { unique: true });
+          classStore.createIndex('slug', 'slug', { unique: true });
+        } else if (event.oldVersion < 3) {
+          // Add slug index for existing stores
+          const classStore = request.transaction!.objectStore('classes');
+          if (!classStore.indexNames.contains('slug')) {
+            classStore.createIndex('slug', 'slug', { unique: true });
+          }
         }
 
         // Create assignments store
@@ -55,7 +63,7 @@ export class AssignmentDatabase {
     });
   }
 
-  async addClass(className: string, classEmoji: string): Promise<number> {
+  async addClass(className: string, classEmoji: string, classSlug: string): Promise<number> {
     if (!this.db) throw new Error('Database not initialized');
     
     const transaction = this.db.transaction(['classes'], 'readwrite');
@@ -63,7 +71,8 @@ export class AssignmentDatabase {
     
     const classData: Omit<Class, 'id'> = {
       name: className,
-      emoji: classEmoji, // Store emoji in the database
+      emoji: classEmoji,
+      slug: classSlug,
       createdAt: new Date().toISOString()
     };
 
@@ -83,6 +92,43 @@ export class AssignmentDatabase {
     return new Promise((resolve, reject) => {
       const request = store.getAll();
       request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async getClassBySlug(slug: string): Promise<Class | null> {
+    if (!this.db) throw new Error('Database not initialized');
+    
+    const transaction = this.db.transaction(['classes'], 'readonly');
+    const store = transaction.objectStore('classes');
+    const index = store.index('slug');
+
+    return new Promise((resolve, reject) => {
+      const request = index.get(slug);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async isSlugUnique(slug: string, excludeId?: number): Promise<boolean> {
+    if (!this.db) throw new Error('Database not initialized');
+    
+    const transaction = this.db.transaction(['classes'], 'readonly');
+    const store = transaction.objectStore('classes');
+    const index = store.index('slug');
+
+    return new Promise((resolve, reject) => {
+      const request = index.get(slug);
+      request.onsuccess = () => {
+        const existingClass = request.result;
+        if (!existingClass) {
+          resolve(true);
+        } else if (excludeId && existingClass.id === excludeId) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      };
       request.onerror = () => reject(request.error);
     });
   }
