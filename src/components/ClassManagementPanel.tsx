@@ -40,7 +40,7 @@ export default function ClassManagementPanel({
   return (
     <>
       <div className="bg-white border-b border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-800">Class Management</h2>
+        <h2 className="text-xl font-semibold text-gray-800">My Classes</h2>
         <p className="text-gray-600 mt-1">Add, edit, or remove classes from your tracker</p>
       </div>
       

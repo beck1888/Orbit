@@ -9,7 +9,7 @@ interface SettingsManagerMenuProps {
 const SettingsManagerMenu: React.FC<SettingsManagerMenuProps> = ({ selectedSection, onSelectSection, onClose }) => {
   const sections = [
     { id: 'history', label: 'History' },
-    { id: 'class-management', label: 'Class Management' },
+    { id: 'class-management', label: 'My Classes' },
     { id: 'preferences', label: 'Settings' },
     { id: 'data', label: 'Data' },
   ];
