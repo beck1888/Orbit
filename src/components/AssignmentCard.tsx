@@ -44,7 +44,13 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
         decay: 0.8, // Faster decay
       });
 
-      const sfxFileName = `/sounds/${localStorage.getItem('completedSoundEffect')}`
+      // Ensure completedSoundEffect exists in localStorage
+      let completedSoundEffect = localStorage.getItem('completedSoundEffect');
+      if (!completedSoundEffect) {
+        completedSoundEffect = 'digital-bells.mp3';
+        localStorage.setItem('completedSoundEffect', completedSoundEffect);
+      }
+      const sfxFileName = `/sounds/${completedSoundEffect}`;
       const audio = new Audio(sfxFileName);
       audio.play();
     }
