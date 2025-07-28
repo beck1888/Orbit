@@ -5,6 +5,14 @@ import { useState, useRef, useEffect } from 'react';
 import { formatDateInput, formatTimeInput } from '@/utils/dateTimeHelpers';
 import { Assignment } from '@/utils/database';
 
+
+/**
+ * AssignmentForm is a unified form for both adding and editing assignments.
+ * - If initialData is provided, the form is in edit mode and fields are pre-filled.
+ * - If initialData is not provided, the form is in add mode and fields are empty/default.
+ * - submitButtonText controls the button label (e.g. "Add Assignment" or "Update Assignment").
+ * - defaultType sets the default assignment type for add mode.
+ */
 interface AssignmentFormProps {
   onSubmit: (assignmentData: {
     title: string;
@@ -14,11 +22,12 @@ interface AssignmentFormProps {
   }) => void;
   onCancel: () => void;
   initialData?: Assignment;
-  submitButtonText: string;
+  submitButtonText?: string; // Optional, defaults to "Add Assignment"
   defaultType?: string;
 }
 
-export default function AssignmentForm({ onSubmit, onCancel, initialData, submitButtonText, defaultType }: AssignmentFormProps) {
+export default function AssignmentForm({ onSubmit, onCancel, initialData, submitButtonText = "Add Assignment", defaultType }: AssignmentFormProps) {
+  // If initialData is provided, pre-fill fields for edit mode
   const [title, setTitle] = useState(initialData?.title || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [type, setType] = useState(initialData?.type || defaultType || 'Homework');
@@ -148,14 +157,15 @@ export default function AssignmentForm({ onSubmit, onCancel, initialData, submit
       dueDate
     });
 
+    // Only clear fields if adding a new assignment
     if (!initialData) {
-        setTitle('');
-        setDescription('');
-        setType(defaultType || 'Homework');
-        setDateValue('');
-        setTimeValue('');
-        setIsoDate('');
-        setTimeISO('');
+      setTitle('');
+      setDescription('');
+      setType(defaultType || 'Homework');
+      setDateValue('');
+      setTimeValue('');
+      setIsoDate('');
+      setTimeISO('');
     }
   };
 

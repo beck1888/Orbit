@@ -6,8 +6,7 @@ import { AssignmentDatabase, Class, Assignment } from '@/utils/database';
 import AppLayout from '@/components/AppLayout';
 import AssignmentList from '@/components/AssignmentList';
 import Modal from '@/components/Modal';
-import AddAssignmentForm from '@/components/AddAssignmentForm';
-import EditAssignmentForm from '@/components/EditAssignmentForm';
+import AssignmentForm from '@/components/AssignmentForm';
 import PopUp from '@/components/PopUp';
 
 export default function ClassPage() {
@@ -187,7 +186,7 @@ export default function ClassPage() {
         }}
         title="Add New Assignment"
       >
-        <AddAssignmentForm
+        <AssignmentForm
           defaultType={addingAssignmentType}
           onSubmit={handleAddAssignment}
           onCancel={() => {
@@ -207,8 +206,9 @@ export default function ClassPage() {
         title="Edit Assignment"
       >
         {editingAssignment && (
-          <EditAssignmentForm
-            assignment={editingAssignment}
+          <AssignmentForm
+            initialData={editingAssignment}
+            submitButtonText="Update Assignment"
             onSubmit={(updates) => handleEditAssignment(editingAssignment.id!, updates)}
             onCancel={() => {
               setIsEditAssignmentModalOpen(false);
