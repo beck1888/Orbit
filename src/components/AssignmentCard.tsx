@@ -44,7 +44,8 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
         decay: 0.8, // Faster decay
       });
 
-      const audio = new Audio('/sounds/task-done.mp3');
+      const sfxFileName = `/sounds/${localStorage.getItem('completedSoundEffect')}`
+      const audio = new Audio(sfxFileName);
       audio.play();
     }
   };
