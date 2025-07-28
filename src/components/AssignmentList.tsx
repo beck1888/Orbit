@@ -42,7 +42,12 @@ export default function AssignmentList({ assignments, onToggleAssignmentCompleti
         </h2>
         <button
           onClick={() => onAddAssignment(columnType)}
-          className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition-colors"
+          className={`text-white rounded-full p-1 transition-colors ${
+            columnType === 'Homework' ? 'hover:bg-blue-700' :
+            columnType === 'Projects' ? 'hover:bg-orange-700' :
+            columnType === 'Exams' ? 'hover:bg-red-700' :
+            'hover:bg-gray-700'
+          }`}
           title={`Add ${title.slice(0, -1)}`}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
