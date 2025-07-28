@@ -8,8 +8,21 @@ interface AddClassFormProps {
 }
 
 export default function AddClassForm({ onSubmit, onCancel }: AddClassFormProps) {
+  function isTitleCase(str: string) {
+    // Each word should start with uppercase followed by lowercase
+    return str.split(' ').every(word => word.length === 0 || (word[0] === word[0].toUpperCase() && word.slice(1) === word.slice(1).toLowerCase()));
+  }
   const [className, setClassName] = useState('');
   const [classEmoji, setClassEmoji] = useState('');
+  const emojiOptions = [
+    '📚', '✏️', '🧮', '🧬', '🎨',
+    '🌎', '🧑‍🏫', '🖥️', '🎵', '🧪',
+    '📖', '📝', '🔬', '🏀', '🎭'
+  ];
+
+  const handleEmojiClick = (emoji: string) => {
+    setClassEmoji(emoji);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +31,7 @@ export default function AddClassForm({ onSubmit, onCancel }: AddClassFormProps) 
       setClassName('');
       setClassEmoji('');
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -31,14 +44,25 @@ export default function AddClassForm({ onSubmit, onCancel }: AddClassFormProps) 
         autoFocus
         required
       />
-      <input
-        type="text"
-        value={classEmoji}
-        onChange={(e) => setClassEmoji(e.target.value)}
-        placeholder="Class emoji (e.g., 📚, ✏️)"
-        className="w-full p-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        required
-      />
+      {!isTitleCase(className.trim()) && className.trim() && (
+        <div className="text-red-600 text-sm mt-1">Class name should be in title case (e.g., Math, English)</div>
+      )}
+      <div>
+        <label className="block mb-2 text-base font-medium">Choose an emoji:</label>
+        <div className="grid grid-cols-5 gap-2 mb-2">
+          {emojiOptions.map((emoji) => (
+            <button
+              type="button"
+              key={emoji}
+              className={`p-2 text-2xl rounded-lg border transition-colors focus:outline-none ${classEmoji === emoji ? 'bg-blue-500 text-white border-blue-500' : 'bg-white border-gray-300 hover:bg-gray-100'}`}
+              onClick={() => handleEmojiClick(emoji)}
+              aria-label={`Select emoji ${emoji}`}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="flex space-x-3">
         <button
           type="submit"
