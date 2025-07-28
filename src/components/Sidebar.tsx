@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { Class, AssignmentDatabase } from '@/utils/database';
+
 import ClassList from './ClassList';
 import SettingsManagementPanel from './SettingsManagementPanel';
+import Link from 'next/link';
 
 interface SidebarProps {
   classes: Class[];
@@ -28,7 +30,9 @@ export default function Sidebar({
     <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
       <div className="p-5 border-b border-gray-200">
         <div className="flex items-center justify-center h-full">
-          <a href="" className="text-4xl font-bold mb-2 hover:underline">Orbit App</a>
+        <Link href="/" className="text-4xl font-bold mb-2 hover:underline">
+          Orbit App
+        </Link>
         </div>
       </div>
       
