@@ -14,6 +14,11 @@ export default function PreferencesPanel() {
     
     setPlaySFX(savedPlaySFX);
     setShowAssignmentTypeCount(savedShowAssignmentTypeCount);
+    
+    // Initialize completedSoundEffect if it doesn't exist
+    if (!localStorage.getItem('completedSoundEffect')) {
+      localStorage.setItem('completedSoundEffect', 'digital-bells.mp3');
+    }
   }, []);
 
   return (
