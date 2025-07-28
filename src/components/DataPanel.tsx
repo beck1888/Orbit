@@ -55,11 +55,14 @@ export default function DataPanel({ classes }: DataPanelProps) {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h3 className="text-lg font-medium text-gray-800 mb-4">Data Actions</h3>
             <div className="space-y-2">
-              <button className="w-full bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors text-sm">
-                Clear All Data
+              <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm">
+                Download Data
               </button>
-              <button className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors text-sm">
-                Reset Settings
+              <button className="w-full bg-green-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors text-sm">
+                Upload Data
+              </button>
+              <button className="w-full bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors text-sm">
+                Delete Data
               </button>
             </div>
           </div>
