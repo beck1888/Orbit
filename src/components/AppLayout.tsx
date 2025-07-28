@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AssignmentDatabase, Class } from '@/utils/database';
-import ClassList from './ClassList';
+import Sidebar from './Sidebar';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -83,7 +83,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <ClassList 
+      <Sidebar 
         classes={classes} 
         setClasses={setClasses}
         db={db}

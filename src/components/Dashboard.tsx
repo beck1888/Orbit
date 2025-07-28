@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { AssignmentDatabase, Assignment, Class } from '@/utils/database';
+import DashboardStats from './DashboardStats';
+import TasksPanel from './TasksPanel';
 
 interface DashboardProps {
   db: AssignmentDatabase | null;
 }
 
-interface DashboardStats {
+interface DashboardStatsData {
   tasksToday: number;
   tasksTomorrow: number;
   totalTasks: number;
@@ -23,8 +23,7 @@ interface DashboardStats {
 }
 
 export default function Dashboard({ db }: DashboardProps) {
-  const router = useRouter();
-  const [stats, setStats] = useState<DashboardStats>({
+  const [stats, setStats] = useState<DashboardStatsData>({
     tasksToday: 0,
     tasksTomorrow: 0,
     totalTasks: 0,
@@ -47,44 +46,36 @@ export default function Dashboard({ db }: DashboardProps) {
       try {
         setIsLoading(true);
         
-        // Get all classes for class name mapping
         const allClasses = await db.getAllClasses();
         setClasses(allClasses);
 
-        // Get all incomplete assignments for total count
         const allIncompleteAssignments = await db.getAllIncompleteAssignments();
         
-        // Get today's date in ISO format (YYYY-MM-DD)
         const today = new Date();
         const todayString = today.toISOString().split('T')[0];
         
-        // Get tomorrow's date in ISO format
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowString = tomorrow.toISOString().split('T')[0];
 
-        // Filter for overdue tasks
         const tasksOverdue = allIncompleteAssignments.filter((assignment: Assignment) => {
           if (!assignment.dueDate) return false;
           const dueDate = new Date(assignment.dueDate).toISOString().split('T')[0];
           return dueDate < todayString;
         });
         
-        // Filter assignments for today from all incomplete assignments
         const tasksToday = allIncompleteAssignments.filter((assignment: Assignment) => {
           if (!assignment.dueDate) return false;
           const dueDate = new Date(assignment.dueDate).toISOString().split('T')[0];
           return dueDate === todayString;
         });
         
-        // Filter assignments for tomorrow from all incomplete assignments
         const tasksTomorrow = allIncompleteAssignments.filter((assignment: Assignment) => {
           if (!assignment.dueDate) return false;
           const dueDate = new Date(assignment.dueDate).toISOString().split('T')[0];
           return dueDate === tomorrowString;
         });
 
-        // Filter assignments for next 7 days from all incomplete assignments
         const next7Days = new Date(today);
         next7Days.setDate(next7Days.getDate() + 7);
         const next7DaysString = next7Days.toISOString().split('T')[0];
@@ -95,7 +86,6 @@ export default function Dashboard({ db }: DashboardProps) {
           return dueDate >= todayString && dueDate <= next7DaysString;
         });
 
-        // Filter assignments without due dates
         const tasksWithoutDates = allIncompleteAssignments.filter((assignment: Assignment) => !assignment.dueDate);
 
         setStats({
@@ -130,13 +120,23 @@ export default function Dashboard({ db }: DashboardProps) {
     return foundClass ? foundClass.slug : '';
   };
 
-  const formatDueDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+  const getCurrentTasks = (): Assignment[] => {
+    switch (selectedView) {
+      case 'overdue':
+        return stats.tasksListOverdue;
+      case 'today':
+        return [...stats.tasksListOverdue, ...stats.tasksListToday];
+      case 'tomorrow':
+        return stats.tasksListTomorrow;
+      case 'next7days':
+        return stats.tasksListNext7Days;
+      case 'all':
+        return stats.tasksListAll;
+      case 'noduedate':
+        return stats.tasksWithoutDates;
+      default:
+        return [];
+    }
   };
 
   if (isLoading) {
@@ -152,221 +152,23 @@ export default function Dashboard({ db }: DashboardProps) {
       <div className="max-w-6xl mx-auto w-full flex flex-col flex-grow min-h-0">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
         
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-red-100 text-red-700">
-                <Image src="/icons/alert.svg" alt="Alert Icon" width={24} height={24} />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Overdue</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.overdueTasks}</p>
-              </div>
-            </div>
-          </div>
+        <DashboardStats 
+          stats={{
+            tasksToday: stats.tasksToday,
+            tasksTomorrow: stats.tasksTomorrow,
+            totalTasks: stats.totalTasks,
+            overdueTasks: stats.overdueTasks,
+            tasksWithoutDates: stats.tasksWithoutDates.length,
+          }}
+        />
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-green-100 text-green-700">
-                <Image src="/icons/sun.svg" alt="Sun Icon" width={24} height={24} />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Today</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.tasksToday}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-yellow-100 text-yellow-700">
-                <Image src="/icons/clock.svg" alt="Clock Icon" width={24} height={24} />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Tomorrow</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.tasksTomorrow}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-100 text-purple-700">
-                <Image src="/icons/question.svg" alt="Question Icon" width={24} height={24} />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">No Date</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.tasksWithoutDates.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center">
-              <div className="p-3 rounded-full bg-blue-100 text-blue-700" style={{ color: '#1D4ED8' }}>
-                <Image src="/icons/check.svg" alt="Check Icon" width={24} height={24} style={{ color: '#1D4ED8' }} />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">To-Do</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalTasks}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* My Tasks */}
-        <div className="bg-white rounded-lg shadow-md flex flex-col flex-grow min-h-0">
-          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-            <h2 className="text-xl font-semibold text-gray-800">My Tasks</h2>
-            <select
-              value={selectedView}
-              onChange={(e) => setSelectedView(e.target.value as 'today' | 'tomorrow' | 'next7days' | 'all' | 'overdue' | 'noduedate')}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="overdue">Overdue</option>
-              <option value="today">Today</option>
-              <option value="tomorrow">Tomorrow</option>
-              <option value="next7days">7 Days</option>
-              <option value="all">All</option>
-              <option value="noduedate">No Due Date</option>
-            </select>
-          </div>
-          <div className="p-6 overflow-y-auto">
-            {(() => {
-              let currentTasks: Assignment[] = [];
-              let viewLabel = '';
-              let emptyMessage = '';
-              let badgeColor = '';
-              let badgeText = '';
-
-              switch (selectedView) {
-                case 'overdue':
-                  currentTasks = stats.tasksListOverdue;
-                  viewLabel = 'overdue';
-                  emptyMessage = "You're all caught up!";
-                  badgeColor = 'bg-orange-100 text-orange-800';
-                  badgeText = 'Overdue';
-                  break;
-                case 'today':
-                  currentTasks = [...stats.tasksListOverdue, ...stats.tasksListToday];
-                  viewLabel = 'today';
-                  emptyMessage = "Enjoy your day or get ahead on tomorrow's work.";
-                  badgeColor = 'bg-red-100 text-red-800';
-                  badgeText = 'Due Today';
-                  break;
-                case 'tomorrow':
-                  currentTasks = stats.tasksListTomorrow;
-                  viewLabel = 'tomorrow';
-                  emptyMessage = 'Great! You have a free day tomorrow.';
-                  badgeColor = 'bg-yellow-100 text-yellow-800';
-                  badgeText = 'Due Tomorrow';
-                  break;
-                case 'next7days':
-                  currentTasks = stats.tasksListNext7Days;
-                  viewLabel = 'in the next 7 days';
-                  emptyMessage = 'Looks like you have a relaxing week ahead!';
-                  badgeColor = 'bg-blue-100 text-blue-800';
-                  badgeText = 'Next 7 Days';
-                  break;
-                case 'all':
-                  currentTasks = stats.tasksListAll;
-                  viewLabel = '';
-                  emptyMessage = 'No tasks at all! Time to add some assignments.';
-                  badgeColor = 'bg-gray-100 text-gray-800';
-                  badgeText = 'To-Do';
-                  break;
-                case 'noduedate':
-                  currentTasks = stats.tasksWithoutDates;
-                  viewLabel = 'without due dates';
-                  emptyMessage = 'No tasks without due dates!';
-                  badgeColor = 'bg-purple-100 text-purple-800';
-                  badgeText = 'No Due Date';
-                  break;
-              }
-              
-              const today = new Date();
-              const todayString = today.toISOString().split('T')[0];
-
-              const overdueInView = currentTasks.filter(task => 
-                task.dueDate && new Date(task.dueDate).toISOString().split('T')[0] < todayString
-              );
-
-              const otherTasksInView = currentTasks.filter(task => 
-                !task.dueDate || new Date(task.dueDate).toISOString().split('T')[0] >= todayString
-              );
-
-              const renderTask = (task: Assignment, isOverdue: boolean) => (
-                <div key={task.id} className={`border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors ${isOverdue ? 'border-red-500' : ''}`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-gray-900">{task.title}</h3>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {task.type}
-                        </span>
-                      </div>
-                      {task.description && (
-                        <p className="text-gray-600 text-sm mb-2">{task.description}</p>
-                      )}
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <button 
-                          onClick={() => {
-                            const slug = getClassSlug(task.classId);
-                            if (slug) router.push(`/${slug}`);
-                          }}
-                          className="flex items-center gap-1 hover:text-blue-600 transition-colors"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0a2 2 0 01-2-2v-1a2 2 0 00-2-2H9a2 2 0 00-2 2v1a2 2 0 01-2 2m14 0V9a2 2 0 00-2-2M5 21V9a2 2 0 012-2h4" />
-                          </svg>
-                          {getClassName(task.classId)}
-                        </button>
-                        <span className="flex items-center gap-1">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          {task.dueDate ? formatDueDate(task.dueDate) : 'No due date'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 ml-4">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${isOverdue ? 'bg-orange-100 text-orange-800' : badgeColor}`}>
-                        {isOverdue ? 'Overdue' : badgeText}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              );
-
-              return currentTasks.length === 0 ? (
-                <div className="text-center py-8">
-                  <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-gray-500 text-lg">
-                    {selectedView === 'all' ? 'No tasks found! 🎉' : 
-                     selectedView === 'overdue' ? 'No overdue tasks! 👍' :
-                     `No tasks due ${viewLabel}! 🎉`}
-                  </p>
-                  <p className="text-gray-400 text-sm mt-2">{emptyMessage}</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {selectedView === 'overdue' 
-                    ? overdueInView.map(task => renderTask(task, true))
-                    : (
-                      <>
-                        {overdueInView.map(task => renderTask(task, true))}
-                        {otherTasksInView.map(task => renderTask(task, false))}
-                      </>
-                    )
-                  }
-                </div>
-              );
-            })()}
-          </div>
-        </div>
+        <TasksPanel
+          selectedView={selectedView}
+          onViewChange={setSelectedView}
+          tasks={getCurrentTasks()}
+          getClassName={getClassName}
+          getClassSlug={getClassSlug}
+        />
       </div>
     </div>
   );
