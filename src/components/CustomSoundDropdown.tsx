@@ -26,6 +26,10 @@ export default function CustomSoundDropdown({ onChange, defaultValue }: { onChan
     };
   }, []);
 
+  useEffect(() => {
+    setSelectedSound(defaultValue);
+  }, [defaultValue]);
+
   const handlePlaySound = (soundFile: string) => {
     const audio = new Audio(`/sounds/${soundFile}`);
     setPlayingSound(soundFile);

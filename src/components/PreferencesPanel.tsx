@@ -6,19 +6,17 @@ import CustomSoundDropdown from './CustomSoundDropdown';
 export default function PreferencesPanel() {
   const [playSFX, setPlaySFX] = useState(true);
   const [showAssignmentTypeCount, setShowAssignmentTypeCount] = useState(true);
+  const [completedSoundEffect, setCompletedSoundEffect] = useState('digital-bells.mp3');
 
   useEffect(() => {
     // Initialize state from localStorage
     const savedPlaySFX = JSON.parse(localStorage.getItem('playSFX') || 'true');
     const savedShowAssignmentTypeCount = JSON.parse(localStorage.getItem('showAssignmentTypeCount') || 'true');
-    
+    const savedCompletedSoundEffect = localStorage.getItem('completedSoundEffect') || 'digital-bells.mp3';
+
     setPlaySFX(savedPlaySFX);
     setShowAssignmentTypeCount(savedShowAssignmentTypeCount);
-    
-    // Initialize completedSoundEffect if it doesn't exist
-    if (!localStorage.getItem('completedSoundEffect')) {
-      localStorage.setItem('completedSoundEffect', 'digital-bells.mp3');
-    }
+    setCompletedSoundEffect(savedCompletedSoundEffect);
   }, []);
 
   return (
@@ -49,8 +47,9 @@ export default function PreferencesPanel() {
               </label>
 
               <CustomSoundDropdown
-                defaultValue="digital-bells.mp3"
+                defaultValue={completedSoundEffect}
                 onChange={(value) => {
+                  setCompletedSoundEffect(value);
                   localStorage.setItem('completedSoundEffect', value);
                 }}
               />
