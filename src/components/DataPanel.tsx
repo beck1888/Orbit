@@ -60,6 +60,31 @@ export default function DataPanel({ classes }: DataPanelProps) {
             <div className="space-y-2">
               <button
                 className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors text-sm"
+                onClick={async () => {
+                  const db = new AssignmentDatabase();
+                  await db.init();
+                  // Get all classes and assignments
+                  const allClasses = await db.getAllClasses();
+                  const allAssignments = await db.getAllIncompleteAssignments();
+                  const completedAssignments = await db.getAllCompletedAssignments();
+                  // Combine all assignments
+                  const allAssignmentsCombined = [...allAssignments, ...completedAssignments];
+                  // Prepare export object
+                  const exportData = {
+                    classes: allClasses,
+                    assignments: allAssignmentsCombined
+                  };
+                  // Create blob and trigger download
+                  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `orbit-assignment-data-${new Date().toISOString().split('T')[0]}.json`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }}
               >
                 Download Data
               </button>
@@ -69,6 +94,57 @@ export default function DataPanel({ classes }: DataPanelProps) {
               >
                 Upload Data
               </button>
+              {/* Hidden file input for upload */}
+              <input
+                type="file"
+                id="orbit-upload-input"
+                accept="application/json"
+                style={{ display: 'none' }}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+                    if (!data.classes || !data.assignments) throw new Error('Invalid file format');
+                    const db = new AssignmentDatabase();
+                    await db.init();
+                    // Delete all classes and assignments
+                    const existingClasses = await db.getAllClasses();
+                    for (const cls of existingClasses) {
+                      if (cls.id !== undefined) await db.deleteClass(cls.id);
+                    }
+                    // Add new classes
+                    for (const cls of data.classes) {
+                      await db.addClass(cls.name, cls.emoji);
+                    }
+                    // Add new assignments
+                    for (const assignment of data.assignments) {
+                      // Remove completed, completedAt for addAssignment
+                      const { completed, completedAt, ...rest } = assignment;
+                      await db.addAssignment(rest);
+                      // If assignment was completed, update it after adding
+                      if (completed) {
+                        // Find the last assignment added (not ideal, but works for now)
+                        const allAssignments = await db.getAllIncompleteAssignments();
+                        const last = allAssignments[allAssignments.length - 1];
+                        if (last && last.id !== undefined) {
+                          await db.updateAssignment(last.id, { completed: true, completedAt });
+                        }
+                      }
+                    }
+                    // Refresh assignments state
+                    const allAssignments = await db.getAllIncompleteAssignments();
+                    const completedAssignments = await db.getAllCompletedAssignments();
+                    setAssignments([...allAssignments, ...completedAssignments]);
+                    alert('Data uploaded and replaced successfully.');
+                  } catch (err) {
+                    alert('Failed to upload data: ' + (err instanceof Error ? err.message : String(err)));
+                  }
+                  // Reset file input value so it can be reused
+                  (e.target as HTMLInputElement).value = '';
+                }}
+              />
               <button
                 className="w-full bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors text-sm"
                 onClick={() => setPopUpState({ type: 'delete', isOpen: true })}
@@ -92,11 +168,25 @@ export default function DataPanel({ classes }: DataPanelProps) {
           onButtonClick={(btn) => {
             if (btn === 'primary') {
               if (popUpState.type === 'upload') {
-                // TODO: Implement upload logic here
-                alert('Upload logic not implemented.');
+                // Trigger file input for upload
+                const input = document.getElementById('orbit-upload-input') as HTMLInputElement;
+                if (input) input.click();
               } else if (popUpState.type === 'delete') {
-                // TODO: Implement delete logic here
-                alert('Delete logic not implemented.');
+                // Delete all classes and assignments
+                (async () => {
+                  try {
+                    const db = new AssignmentDatabase();
+                    await db.init();
+                    const existingClasses = await db.getAllClasses();
+                    for (const cls of existingClasses) {
+                      if (cls.id !== undefined) await db.deleteClass(cls.id);
+                    }
+                    setAssignments([]);
+                    alert('All data deleted successfully.');
+                  } catch (err) {
+                    alert('Failed to delete data: ' + (err instanceof Error ? err.message : String(err)));
+                  }
+                })();
               }
             }
             setPopUpState(null);
