@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 interface SettingsManagerMenuProps {
   selectedSection: string;
   onSelectSection: (section: string) => void;
@@ -11,6 +13,11 @@ const SettingsManagerMenu: React.FC<SettingsManagerMenuProps> = ({ selectedSecti
     { id: 'preferences', label: 'Settings' },
     { id: 'data', label: 'Data' },
   ];
+
+  useEffect(() => {
+    localStorage.setItem('playSFX', JSON.stringify(true)); // Controlled by Play Sound checkbox
+    localStorage.setItem('showAssignmentTypeCount', JSON.stringify(true));
+  }, []);
 
   return (
     <div className="w-80 bg-white border-r border-gray-200 flex flex-col">

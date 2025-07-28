@@ -1,8 +1,21 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import CustomSoundDropdown from './CustomSoundDropdown';
 
 export default function PreferencesPanel() {
+  const [playSFX, setPlaySFX] = useState(true);
+  const [showAssignmentTypeCount, setShowAssignmentTypeCount] = useState(true);
+
+  useEffect(() => {
+    // Initialize state from localStorage
+    const savedPlaySFX = JSON.parse(localStorage.getItem('playSFX') || 'true');
+    const savedShowAssignmentTypeCount = JSON.parse(localStorage.getItem('showAssignmentTypeCount') || 'true');
+    
+    setPlaySFX(savedPlaySFX);
+    setShowAssignmentTypeCount(savedShowAssignmentTypeCount);
+  }, []);
+
   return (
     <>
       <div className="bg-white border-b border-gray-200 p-6">
@@ -20,9 +33,11 @@ export default function PreferencesPanel() {
                 <input
                   type="checkbox"
                   className="mr-2"
-                  defaultChecked={true} // Defaults to yes
+                  checked={playSFX}
                   onChange={(e) => {
-                    localStorage.setItem('playSound', e.target.checked ? 'yes' : 'no');
+                    const newValue = e.target.checked;
+                    setPlaySFX(newValue);
+                    localStorage.setItem('playSFX', JSON.stringify(newValue));
                   }}
                 />
                 <span className="text-gray-700">Play sound</span>
@@ -45,9 +60,11 @@ export default function PreferencesPanel() {
                 <input
                   type="checkbox"
                   className="mr-2"
-                  defaultChecked={false} // Defaults to no
+                  checked={showAssignmentTypeCount}
                   onChange={(e) => {
-                    localStorage.setItem('showAssignmentTypeCount', e.target.checked ? 'yes' : 'no');
+                    const newValue = e.target.checked;
+                    setShowAssignmentTypeCount(newValue);
+                    localStorage.setItem('showAssignmentTypeCount', JSON.stringify(newValue));
                   }}
                 />
                 <span className="text-gray-700">Show assignment type count</span>
