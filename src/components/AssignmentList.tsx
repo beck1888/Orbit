@@ -19,10 +19,27 @@ export default function AssignmentList({ assignments, onToggleAssignmentCompleti
   const incompleteExams = assignments.filter(a => a.type?.toLowerCase() === 'exams' && !a.completed);
   const incompleteOther = assignments.filter(a => !['homework', 'projects', 'exams'].includes(a.type?.toLowerCase() || '') && !a.completed);
 
+  // Check localStorage for showAssignmentTypeCount
+  let showAssignmentTypeCount = true;
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem('showAssignmentTypeCount');
+    if (stored === null) {
+      localStorage.setItem('showAssignmentTypeCount', 'true');
+      showAssignmentTypeCount = true;
+    } else {
+      showAssignmentTypeCount = stored === 'true';
+    }
+  }
+
   const renderColumn = (title: string, incompleteAssignments: Assignment[], bgColor: string, columnType: string) => (
     <div className="flex-1 min-w-0 flex flex-col h-full">
       <div className={`${bgColor} text-white px-4 py-3 rounded-t-lg flex-shrink-0 flex justify-between items-center`}>
-        <h2 className="text-lg font-semibold">{title} ({incompleteAssignments.length})</h2>
+        <h2 className="text-lg font-semibold">
+          {title}
+          {showAssignmentTypeCount && (
+            <> ({incompleteAssignments.length})</>
+          )}
+        </h2>
         <button
           onClick={() => onAddAssignment(columnType)}
           className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1 transition-colors"
