@@ -14,6 +14,7 @@ export default function AddClassForm({ onSubmit, onCancel }: AddClassFormProps) 
   }
   const [className, setClassName] = useState('');
   const [classEmoji, setClassEmoji] = useState('');
+  const [emojiError, setEmojiError] = useState(false);
   const emojiOptions = [
     '📚', // Study grind / readings never end
     '💻', // Programming / tech / CS
@@ -40,6 +41,11 @@ export default function AddClassForm({ onSubmit, onCancel }: AddClassFormProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!classEmoji.trim()) {
+      setEmojiError(true);
+      return;
+    }
+    setEmojiError(false);
     if (className.trim() && classEmoji.trim()) {
       onSubmit(className.trim(), classEmoji.trim());
       setClassName('');
@@ -69,13 +75,16 @@ export default function AddClassForm({ onSubmit, onCancel }: AddClassFormProps) 
               type="button"
               key={emoji}
               className={`p-2 text-2xl rounded-lg border transition-colors focus:outline-none ${classEmoji === emoji ? 'bg-blue-500 text-white border-blue-500' : 'bg-white border-gray-300 hover:bg-gray-100'}`}
-              onClick={() => handleEmojiClick(emoji)}
+              onClick={() => { handleEmojiClick(emoji); setEmojiError(false); }}
               aria-label={`Select emoji ${emoji}`}
             >
               {emoji}
             </button>
           ))}
         </div>
+        {emojiError && (
+          <div className="text-red-600 text-sm mt-1">Please select an emoji for your class.</div>
+        )}
       </div>
       <div className="flex space-x-3">
         <button
