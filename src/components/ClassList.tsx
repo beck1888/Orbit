@@ -10,8 +10,8 @@ interface ClassListProps {
   setClasses: React.Dispatch<React.SetStateAction<Class[]>>;
   db: AssignmentDatabase | null;
   currentClassId: number | null;
-  onSelectClass: (classId: number, className: string) => void;
-  onDeleteClass: (classId: number, className: string) => void;
+  onSelectClass: (classId: number) => void;
+  onDeleteClass: (classId: number) => void;
 }
 
 export default function ClassList({ classes, setClasses, db, currentClassId, onSelectClass, onDeleteClass }: ClassListProps) {
@@ -36,7 +36,7 @@ export default function ClassList({ classes, setClasses, db, currentClassId, onS
               key={classItem.id}
               classItem={classItem}
               isActive={currentClassId === classItem.id}
-              onSelect={() => onSelectClass(classItem.id!, classItem.name)}
+              onSelect={() => onSelectClass(classItem.id!)}
             />
           ))
         )}

@@ -14,7 +14,7 @@ interface SettingsManagementPanelProps {
   classes: Class[];
   setClasses: React.Dispatch<React.SetStateAction<Class[]>>;
   db: AssignmentDatabase | null;
-  onDeleteClass: (classId: number, className: string) => void;
+  onDeleteClass: (classId: number) => void;
 }
 
 export default function SettingsManagementPanel({ 
