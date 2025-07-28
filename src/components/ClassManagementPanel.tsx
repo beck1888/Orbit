@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PopUp from './PopUp';
 import { Class, AssignmentDatabase } from '@/utils/database';
 import Modal from './Modal';
 import AddClassForm from './AddClassForm';
@@ -9,16 +10,18 @@ interface ClassManagementPanelProps {
   classes: Class[];
   setClasses: React.Dispatch<React.SetStateAction<Class[]>>;
   db: AssignmentDatabase | null;
-  onDeleteClass: (classId: number, className: string) => void;
+  // Remove onDeleteClass from props, will handle locally
 }
 
 export default function ClassManagementPanel({ 
   classes, 
   setClasses, 
-  db, 
-  onDeleteClass 
-}: ClassManagementPanelProps) {
+  db
+}: Omit<ClassManagementPanelProps, 'onDeleteClass'>) {
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
+  
+    // State for delete confirmation popup
+    const [deletePopUpState, setDeletePopUpState] = useState<{ isOpen: boolean; classId?: number; className?: string }>({ isOpen: false });
 
   const handleAddClass = async (className: string, classEmoji: string) => {
     if (!db) return;
@@ -30,7 +33,7 @@ export default function ClassManagementPanel({
       setIsAddClassModalOpen(false);
     } catch (error) {
       console.error('Failed to add class:', error);
-      alert('Failed to add class. Please try again.');
+      // Optionally, you can show a custom error PopUp here if desired
     }
   };
 
@@ -69,7 +72,7 @@ export default function ClassManagementPanel({
                     </span>
                     <button
                       className="text-red-500 hover:text-red-700 text-sm"
-                      onClick={() => onDeleteClass(classItem.id!, classItem.name)}
+                        onClick={() => setDeletePopUpState({ isOpen: true, classId: classItem.id, className: classItem.name })}
                     >
                       Delete
                     </button>
@@ -96,6 +99,30 @@ export default function ClassManagementPanel({
           />
         </Modal>
       )}
+      
+        {/* PopUp for Delete Class action */}
+        {deletePopUpState.isOpen && (
+          <PopUp
+            isOpen={deletePopUpState.isOpen}
+            title={"Delete Class"}
+            message={`Are you sure you want to delete the class "${deletePopUpState.className}"? This action cannot be undone.`}
+            dismissButtonLabel="Cancel"
+            primaryButtonLabel="Delete"
+            onButtonClick={async (btn: string) => {
+              if (btn === 'primary' && deletePopUpState.classId !== undefined && db) {
+                try {
+                  await db.deleteClass(deletePopUpState.classId);
+                  const updatedClasses = await db.getAllClasses();
+                  setClasses(updatedClasses);
+                } catch (error) {
+                  console.error('Failed to delete class:', error);
+                  // Optionally show a custom error popup here
+                }
+              }
+              setDeletePopUpState({ isOpen: false });
+            }}
+          />
+        )}
     </>
   );
 }

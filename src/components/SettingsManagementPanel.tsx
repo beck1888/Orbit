@@ -22,8 +22,7 @@ export default function SettingsManagementPanel({
   onClose, 
   classes, 
   setClasses, 
-  db, 
-  onDeleteClass 
+  db
 }: SettingsManagementPanelProps) {
   const [selectedSection, setSelectedSection] = useState('history');
 
@@ -44,7 +43,6 @@ export default function SettingsManagementPanel({
               classes={classes}
               setClasses={setClasses}
               db={db}
-              onDeleteClass={onDeleteClass}
             />
           )}
 

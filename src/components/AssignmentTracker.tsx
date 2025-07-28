@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import PopUp from './PopUp';
 import { AssignmentDatabase, Class, Assignment } from '@/utils/database';
 import Modal from '@/components/Modal';
 import AddAssignmentForm from '@/components/AddAssignmentForm';
@@ -10,6 +11,8 @@ import AssignmentList from './AssignmentList';
 import Dashboard from './Dashboard';
 
 export default function AssignmentTracker() {
+  // State for delete confirmation popup
+  const [deletePopUpState, setDeletePopUpState] = useState<{ isOpen: boolean; type?: 'class' | 'assignment'; classId?: number; className?: string; assignmentId?: number }>({ isOpen: false });
   const [db, setDb] = useState<AssignmentDatabase | null>(null);
   const [classes, setClasses] = useState<Class[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -59,23 +62,19 @@ export default function AssignmentTracker() {
   }, [currentClassId, db]);
 
 
-  const handleDeleteClass = async (classId: number, className: string) => {
+  const handleDeleteClass = async (classId: number) => {
     if (!db) return;
-
-    if (confirm(`Are you sure you want to delete "${className}" and all its assignments?`)) {
-      try {
-        await db.deleteClass(classId);
-        const classList = await db.getAllClasses();
-        setClasses(classList);
-        
-        if (currentClassId === classId) {
-          setCurrentClassId(null);
-          setAssignments([]);
-        }
-      } catch (error) {
-        console.error('Failed to delete class:', error);
-        alert('Failed to delete class. Please try again.');
+    try {
+      await db.deleteClass(classId);
+      const classList = await db.getAllClasses();
+      setClasses(classList);
+      if (currentClassId === classId) {
+        setCurrentClassId(null);
+        setAssignments([]);
       }
+    } catch (error) {
+      console.error('Failed to delete class:', error);
+      alert('Failed to delete class. Please try again.');
     }
   };
 
@@ -126,16 +125,13 @@ export default function AssignmentTracker() {
 
   const handleDeleteAssignment = async (assignmentId: number) => {
     if (!db || !currentClassId) return;
-
-    if (confirm('Are you sure you want to delete this assignment?')) {
-      try {
-        await db.deleteAssignment(assignmentId);
-        const assignmentList = await db.getAssignmentsByClass(currentClassId);
-        setAssignments(assignmentList);
-      } catch (error) {
-        console.error('Failed to delete assignment:', error);
-        alert('Failed to delete assignment. Please try again.');
-      }
+    try {
+      await db.deleteAssignment(assignmentId);
+      const assignmentList = await db.getAssignmentsByClass(currentClassId);
+      setAssignments(assignmentList);
+    } catch (error) {
+      console.error('Failed to delete assignment:', error);
+      alert('Failed to delete assignment. Please try again.');
     }
   };
 
@@ -180,7 +176,7 @@ export default function AssignmentTracker() {
         db={db}
         currentClassId={currentClassId} 
         onSelectClass={handleSelectClass} 
-        onDeleteClass={handleDeleteClass} 
+        onDeleteClass={(classId: number, className: string) => setDeletePopUpState({ isOpen: true, type: 'class', classId, className })} 
       />
 
       <div className="flex-1 flex flex-col">
@@ -191,10 +187,32 @@ export default function AssignmentTracker() {
             <AssignmentList 
               assignments={assignments} 
               onToggleAssignmentCompletion={handleToggleAssignmentCompletion} 
-              onDeleteAssignment={handleDeleteAssignment} 
+              onDeleteAssignment={(assignmentId: number) => setDeletePopUpState({ isOpen: true, type: 'assignment', assignmentId })} 
               onEditAssignment={handleEditAssignment} 
               onAddAssignment={handleOpenAddAssignmentModal}
             />
+      {/* PopUp for Delete Class/Assignment action */}
+      {deletePopUpState.isOpen && (
+        <PopUp
+          isOpen={deletePopUpState.isOpen}
+          title={deletePopUpState.type === 'class' ? 'Delete Class' : 'Delete Assignment'}
+          message={deletePopUpState.type === 'class'
+            ? `Are you sure you want to delete "${deletePopUpState.className}" and all its assignments? This action cannot be undone.`
+            : 'Are you sure you want to delete this assignment? This action cannot be undone.'}
+          dismissButtonLabel="Cancel"
+          primaryButtonLabel={deletePopUpState.type === 'class' ? 'Delete Class' : 'Delete Assignment'}
+          onButtonClick={(btn: string) => {
+            if (btn === 'primary') {
+              if (deletePopUpState.type === 'class' && deletePopUpState.classId) {
+                handleDeleteClass(deletePopUpState.classId);
+              } else if (deletePopUpState.type === 'assignment' && deletePopUpState.assignmentId) {
+                handleDeleteAssignment(deletePopUpState.assignmentId);
+              }
+            }
+            setDeletePopUpState({ isOpen: false });
+          }}
+        />
+      )}
           </>
         )}
       </div>
