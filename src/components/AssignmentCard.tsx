@@ -44,15 +44,24 @@ export default function AssignmentCard({ assignment, onToggleComplete, onDelete,
         decay: 0.8, // Faster decay
       });
 
-      // Ensure completedSoundEffect exists in localStorage
-      let completedSoundEffect = localStorage.getItem('completedSoundEffect');
-      if (!completedSoundEffect) {
-        completedSoundEffect = 'digital-bells.mp3';
-        localStorage.setItem('completedSoundEffect', completedSoundEffect);
+      // Ensure playSFX exists in localStorage
+      let playSFX = localStorage.getItem('playSFX');
+      if (playSFX === null) {
+        playSFX = 'true';
+        localStorage.setItem('playSFX', playSFX);
       }
-      const sfxFileName = `/sounds/${completedSoundEffect}`;
-      const audio = new Audio(sfxFileName);
-      audio.play();
+
+      if (playSFX === 'true') {
+        // Ensure completedSoundEffect exists in localStorage
+        let completedSoundEffect = localStorage.getItem('completedSoundEffect');
+        if (!completedSoundEffect) {
+          completedSoundEffect = 'digital-bells.mp3';
+          localStorage.setItem('completedSoundEffect', completedSoundEffect);
+        }
+        const sfxFileName = `/sounds/${completedSoundEffect}`;
+        const audio = new Audio(sfxFileName);
+        audio.play();
+      }
     }
   };
 
