@@ -39,10 +39,6 @@ export default function DataPanel({ classes }: DataPanelProps) {
 
   return (
     <>
-      <div className="bg-white border-b border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-800">Data & Storage</h2>
-        <p className="text-gray-600 mt-1">Manage your data and storage settings</p>
-      </div>
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Storage Info */}

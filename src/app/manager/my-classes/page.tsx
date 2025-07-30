@@ -41,14 +41,14 @@ export default function MyClassesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center flex-1">
         <div className="text-lg text-gray-600">Loading classes...</div>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="flex-1 overflow-hidden">
       <ClassManagementPanel
         db={db}
         classes={classes}

@@ -10,17 +10,20 @@ export default function ManagerLayout({
   const router = useRouter();
   const pathname = usePathname();
 
-  const tabs = [
-    { id: 'my-classes', label: 'My Classes', path: '/manager/my-classes' },
-    { id: 'preferences', label: 'Preferences', path: '/manager/preferences' },
-    { id: 'data', label: 'Data', path: '/manager/data' },
+  const menuItems = [
+    { id: 'my-classes', label: 'My Classes', path: '/manager/my-classes', description: 'Manage your classes and course information' },
+    { id: 'preferences', label: 'Preferences', path: '/manager/preferences', description: 'Customize your application settings and preferences' },
+    { id: 'data', label: 'Data', path: '/manager/data', description: 'Export and manage your application data' },
   ];
 
+  const currentItem = menuItems.find(item => item.path === pathname);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+        {/* Sidebar Header */}
+        <div className="p-5 border-b border-gray-200">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push('/')}
@@ -30,33 +33,44 @@ export default function ManagerLayout({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
-            <h1 className="text-3xl font-bold text-gray-800">Settings</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => router.push(tab.path)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    pathname === tab.path
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
+        {/* Navigation Menu */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4">
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => router.push(item.path)}
+                className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-colors mb-2 ${
+                  pathname === item.path
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
         </div>
+      </div>
 
-        {/* Content */}
-        {children}
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Content Header */}
+        {currentItem && (
+          <div className="bg-white border-b border-gray-200 p-6">
+            <h2 className="text-2xl font-bold text-gray-800">{currentItem.label}</h2>
+            <p className="text-gray-600 mt-1">{currentItem.description}</p>
+          </div>
+        )}
+        
+        {/* Page Content */}
+        <div className="flex-1 overflow-hidden">
+          {children}
+        </div>
       </div>
     </div>
   );

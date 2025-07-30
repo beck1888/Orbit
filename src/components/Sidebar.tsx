@@ -43,12 +43,11 @@ export default function Sidebar({
       />
       
       <div className="p-4 border-t border-gray-200">
-        <button
-          className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-          onClick={() => setIsManagePanelOpen(true)}
-        >
-          Manage
-        </button>
+        <Link href="/manager">
+          <button className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+            Manage
+          </button>
+        </Link>
       </div>
 
       <SettingsManagementPanel

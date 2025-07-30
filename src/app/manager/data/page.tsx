@@ -30,14 +30,14 @@ export default function DataPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center flex-1">
         <div className="text-lg text-gray-600">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="flex-1 p-6 overflow-y-auto">
       <DataPanel classes={classes} />
     </div>
   );
