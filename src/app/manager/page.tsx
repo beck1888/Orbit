@@ -7,8 +7,8 @@ export default function ManagerPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect to my-classes by default
-    router.replace('/manager/my-classes');
+    // Redirect to history by default
+    router.replace('/manager/history');
   }, [router]);
 
   return (

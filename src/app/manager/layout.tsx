@@ -11,6 +11,7 @@ export default function ManagerLayout({
   const pathname = usePathname();
 
   const menuItems = [
+    { id: 'history', label: 'History', path: '/manager/history', description: 'View and manage your completed assignments' },
     { id: 'my-classes', label: 'My Classes', path: '/manager/my-classes', description: 'Manage your classes and course information' },
     { id: 'preferences', label: 'Preferences', path: '/manager/preferences', description: 'Customize your application settings and preferences' },
     { id: 'data', label: 'Data', path: '/manager/data', description: 'Export and manage your application data' },
